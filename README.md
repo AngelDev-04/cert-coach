@@ -2,13 +2,13 @@
 
 <p align="center">
   <strong>Adaptive Multi-Agent Certification Study Coach Engine</strong><br>
-  <em>Learn with Kiro, Claude Code, or Antigravity — Powered by Shared Local SQLite Memory</em>
+  <em>Learn with Kiro, Claude Code, Antigravity, or OpenAI Codex — Powered by Shared Local SQLite Memory</em>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="Python 3.10+">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">
-  <img src="https://img.shields.io/badge/agents-Kiro%20%7C%20Claude%20Code%20%7C%20Antigravity-orange" alt="Supported Agents">
+  <img src="https://img.shields.io/badge/agents-Kiro%20%7C%20Claude%20Code%20%7C%20Antigravity%20%7C%20Codex-orange" alt="Supported Agents">
   <img src="https://img.shields.io/badge/AWS-SAA--C03%20%7C%20CLF--C02%20%7C%20AIF--C01-FF9900" alt="Supported Exams">
 </p>
 
@@ -40,13 +40,14 @@ uv tool install .
 ## 🚀 Key Features
 
 ### 1. 🤝 Multi-Agent Coexistence
-Use multiple AI coding assistants in the exact same workspace. Start a diagnostic exam with **Kiro**, practice architectural scenarios with **Claude Code**, and review spaced-repetition flashcards in **Antigravity**. All agents share the same local learner history without conflicting configs!
+Use multiple AI coding assistants in the exact same workspace. Start a diagnostic exam with **Kiro**, practice architectural scenarios with **Claude Code**, review spaced-repetition flashcards in **Antigravity**, and run adaptive quizzes in **OpenAI Codex**. All agents share the same local learner history without conflicting configs!
 
-| AI Agent | Integration File | Configuration Type |
+| AI Agent | Integration Files | Configuration Type |
 | :--- | :--- | :--- |
 | **Kiro / Kiro-CLI** | `POWER.md`, `mcp.json`, `steering/`, `skills/` | Custom Power & Skill Directory |
-| **Claude Code** | `CLAUDE.md`, `.claude/commands/`, `.mcp.json` | Slash Commands (`/diagnostic`, `/mock`, etc.) |
-| **Agy CLI (Antigravity)** | `.gemini/rules/`, `.gemini/skills/`, `mcp.json` | Gemini System Rules & Skills |
+| **Claude Code** | `CLAUDE.md`, `.claude/commands/`, `.mcp.json` | Slash Commands (`/plan`, `/diagnostic`, `/quiz`, etc.) |
+| **Agy CLI (Antigravity)** | `GEMINI.md`, `.agents/skills/`, `.gemini/skills/`, `mcp_config.json` | Gemini System Rules & Native Skills |
+| **OpenAI Codex CLI** | `AGENTS.md`, `CODEX.md`, `.codex/config.toml`, `.agents/skills/` | Codex Agent Instructions, TOML MCP & Skills |
 
 ### 2. 🎯 Supported Certification Tracks
 - **AWS Certified Solutions Architect – Associate (SAA-C03)**: 4 domains, 14 tasks, 42 topics with official blueprints and rubrics.

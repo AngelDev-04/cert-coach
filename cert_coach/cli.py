@@ -369,7 +369,7 @@ def build_parser() -> argparse.ArgumentParser:
     # init
     init_parser = subparsers.add_parser("init", help="Initialize a study coach workspace")
     init_parser.add_argument("--dir", "-d", help="Target directory for the workspace")
-    init_parser.add_argument("--harness", "-H", help="Harnesses to configure (comma-separated: kiro,claude,agy)")
+    init_parser.add_argument("--harness", "-H", help="Harnesses to configure (comma-separated: kiro,claude,agy,codex)")
     init_parser.add_argument("--exam", "-e", help="Target exam (saa-c03, clf-c02, aif-c01)")
     init_parser.add_argument("--db", help="Path to SQLite database")
     init_parser.add_argument("--non-interactive", "-y", action="store_true", help="Skip interactive prompts")
@@ -377,7 +377,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     # add-harness
     add_parser = subparsers.add_parser("add-harness", help="Add an agent harness to the current workspace")
-    add_parser.add_argument("harness", help="Harness name (kiro, claude, agy)")
+    add_parser.add_argument("harness", help="Harness name (kiro, claude, agy, codex)")
     add_parser.add_argument("--dir", "-d", help="Workspace directory")
 
     # status / info

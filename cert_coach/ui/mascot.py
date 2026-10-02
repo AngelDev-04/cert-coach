@@ -82,7 +82,7 @@ def render_owl_panel(
         "[dim #0073BB]SAA-C03 • CLF-C02 • AIF-C01[/]",
         "",
         "[bold #232F3E on #FF9900] AWS [/] [dim white]Multi-Agent Coexistence & Shared Memory[/]",
-        "[dim]Kiro • Claude Code • Agy CLI • Local SQLite[/]",
+        "[dim]Kiro • Claude Code • Agy CLI • Codex • Local SQLite[/]",
         "",
         f"[dim italic]\"{status}\"[/]",
     ]

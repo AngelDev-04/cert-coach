@@ -5,6 +5,7 @@ from __future__ import annotations
 from cert_coach.adapters.agy import AgyCliAdapter
 from cert_coach.adapters.base import BaseHarnessAdapter
 from cert_coach.adapters.claude import ClaudeCodeAdapter
+from cert_coach.adapters.codex import CodexAdapter
 from cert_coach.adapters.kiro import KiroAdapter
 from cert_coach.core.models import HarnessType
 
@@ -12,6 +13,7 @@ _ADAPTERS: dict[HarnessType, BaseHarnessAdapter] = {
     HarnessType.KIRO: KiroAdapter(),
     HarnessType.CLAUDE: ClaudeCodeAdapter(),
     HarnessType.AGY: AgyCliAdapter(),
+    HarnessType.CODEX: CodexAdapter(),
 }
 
 
@@ -32,6 +34,7 @@ __all__ = [
     "AgyCliAdapter",
     "BaseHarnessAdapter",
     "ClaudeCodeAdapter",
+    "CodexAdapter",
     "KiroAdapter",
     "get_adapter",
     "list_adapters",

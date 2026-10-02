@@ -63,7 +63,8 @@ def prompt_harness_selection(defaults: list[str] | None = None) -> list[str]:
     choices = [
         {"name": "Kiro / Kiro-CLI (Power: POWER.md + skills + steering)", "value": "kiro", "checked": "kiro" in defaults},
         {"name": "Claude Code (Slash commands: .claude/commands/ + CLAUDE.md)", "value": "claude", "checked": "claude" in defaults},
-        {"name": "Agy CLI / Antigravity (Skills + Rules: .gemini/)", "value": "agy", "checked": "agy" in defaults},
+        {"name": "Agy CLI / Antigravity (Skills + Rules: .gemini/ & .agents/)", "value": "agy", "checked": "agy" in defaults},
+        {"name": "OpenAI Codex CLI (AGENTS.md + .codex/config.toml + .agents/skills/)", "value": "codex", "checked": "codex" in defaults},
     ]
 
     try:

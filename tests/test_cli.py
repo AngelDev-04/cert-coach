@@ -77,7 +77,7 @@ class CliTests(unittest.TestCase):
         main([
             "init",
             "--dir", str(self.workspace),
-            "--harness", "kiro,claude,agy",
+            "--harness", "kiro,claude,agy,codex",
             "--exam", "aif-c01",
             "--non-interactive",
             "--no-animation",
@@ -88,6 +88,22 @@ class CliTests(unittest.TestCase):
 
         doc_code = main(["doctor", "--dir", str(self.workspace)])
         self.assertEqual(doc_code, 0)
+
+    def test_init_with_codex_harness(self) -> None:
+        exit_code = main([
+            "init",
+            "--dir", str(self.workspace),
+            "--harness", "codex",
+            "--exam", "saa-c03",
+            "--non-interactive",
+            "--no-animation",
+        ])
+        self.assertEqual(exit_code, 0)
+        self.assertTrue((self.workspace / "AGENTS.md").is_file())
+        self.assertTrue((self.workspace / "CODEX.md").is_file())
+        self.assertTrue((self.workspace / ".codex" / "config.toml").is_file())
+        self.assertTrue((self.workspace / ".agents" / "skills").is_dir())
+
 
     def test_invalid_harness_fails_cleanly(self) -> None:
         exit_code = main([

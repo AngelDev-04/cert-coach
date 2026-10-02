@@ -15,6 +15,7 @@ class HarnessType(str, Enum):
     KIRO = "kiro"
     CLAUDE = "claude"
     AGY = "agy"
+    CODEX = "codex"
 
     @classmethod
     def from_string(cls, value: str) -> HarnessType:
@@ -25,7 +26,9 @@ class HarnessType(str, Enum):
             return cls.CLAUDE
         if normalized in ("agy", "agy-cli", "agy_cli", "antigravity"):
             return cls.AGY
-        raise ValueError(f"Unknown harness '{value}'. Supported: kiro, claude, agy")
+        if normalized in ("codex", "codex-cli", "codex_cli", "openai-codex", "openai_codex"):
+            return cls.CODEX
+        raise ValueError(f"Unknown harness '{value}'. Supported: kiro, claude, agy, codex")
 
 
 class ExamType(str, Enum):
