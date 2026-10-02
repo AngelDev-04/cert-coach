@@ -1,0 +1,13 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "study-memory": {
+      "type": "stdio",
+      "command": "python3",
+      "args": ["/home/ing-miguel-j/Repositorios/aws-saa-study-coach/study-memory-mcp/server.py"],
+      "env": {
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
+  }
+}

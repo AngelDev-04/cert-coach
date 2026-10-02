@@ -1,0 +1,23 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "aws-saa-study-coach",
+  "version": "0.3.0",
+  "description": "A private adaptive AWS SAA-C03 coach with diagnostics, original quizzes, architecture scenarios, weighted mock exams, spaced repetition, and evidence-calibrated study plans.",
+  "author": {
+    "name": "AWS SAA Study Coach contributors"
+  },
+  "keywords": [
+    "AWS certification",
+    "SAA-C03",
+    "Solutions Architect Associate",
+    "adaptive study",
+    "diagnostic assessment",
+    "AWS mock exam",
+    "AWS quiz",
+    "spaced repetition",
+    "AWS flashcards",
+    "AWS architecture scenario",
+    "study progress"
+  ],
+  "license": "MIT"
+}

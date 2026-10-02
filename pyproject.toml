@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cert-coach"
+version = "0.3.0"
+description = "Adaptive multi-agent certification study coach CLI with shared learner memory"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "AngelDev-04" }
+]
+keywords = [
+    "aws",
+    "certification",
+    "saa-c03",
+    "clf-c02",
+    "aif-c01",
+    "kiro",
+    "claude-code",
+    "antigravity",
+    "mcp",
+    "study-coach"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Environment :: Console",
+    "Topic :: Education",
+    "Topic :: Software Development :: Code Generators"
+]
+dependencies = [
+    "rich>=13.0.0",
+    "questionary>=2.0.0"
+]
+
+[project.scripts]
+cert-coach = "cert_coach.cli:main"
+study-coach = "cert_coach.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["cert_coach*"]
+
+[tool.setuptools.package-data]
+cert_coach = [
+    "templates/**/*",
+    "templates/**/.*"
+]

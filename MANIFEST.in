@@ -1,0 +1,6 @@
+graft cert_coach/templates
+recursive-include cert_coach/templates *
+include README.md
+include LICENSE
+global-exclude __pycache__
+global-exclude *.py[cod]

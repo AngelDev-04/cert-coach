@@ -1,0 +1,306 @@
+{
+  "schema_version": "1.0",
+  "exam_code": "SAA-C03",
+  "verified_on": "2026-08-28",
+  "official_exam_guide": "https://docs.aws.amazon.com/aws-certification/latest/solutions-architect-associate-03/solutions-architect-associate-03.html",
+  "domains": [
+    {
+      "id": "secure",
+      "name": "Design Secure Architectures",
+      "weight": 30,
+      "official_reference": "https://docs.aws.amazon.com/aws-certification/latest/solutions-architect-associate-03/solutions-architect-associate-03-domain1.html",
+      "tasks": [
+        {
+          "id": "1.1",
+          "name": "Design secure access to AWS resources",
+          "topics": [
+            {"id": "iam-policy-evaluation", "name": "IAM policies and policy evaluation"},
+            {"id": "federation-identity-center", "name": "Federation and IAM Identity Center"},
+            {"id": "multi-account-governance", "name": "Cross-account access, Organizations, and SCPs"}
+          ],
+          "selection_rules": [
+            "Prefer temporary role credentials and least privilege over long-lived access keys.",
+            "Evaluate identity, resource, boundary, session, and organization policies together; an explicit deny wins.",
+            "Use SCPs as permission guardrails, not as grants of permission."
+          ],
+          "common_confusions": [
+            "Treating an SCP as an identity policy that grants access.",
+            "Using IAM users where federation or roles provide safer temporary access.",
+            "Assuming a resource policy always removes the need for identity permissions."
+          ]
+        },
+        {
+          "id": "1.2",
+          "name": "Design secure workloads and applications",
+          "topics": [
+            {"id": "vpc-security-controls", "name": "Security groups, network ACLs, and private connectivity"},
+            {"id": "workload-threat-protection", "name": "WAF, Shield, GuardDuty, and workload protection"},
+            {"id": "secrets-application-access", "name": "Secrets, credentials, and application access"}
+          ],
+          "selection_rules": [
+            "Choose stateful security groups for resource-level controls and stateless network ACLs for subnet-level controls.",
+            "Keep workloads private when public reachability is not required and use managed private endpoints where appropriate.",
+            "Match preventive, detective, and responsive services to the stated threat and operational requirement."
+          ],
+          "common_confusions": [
+            "Reversing the stateful behavior of security groups and the stateless behavior of network ACLs.",
+            "Using NAT gateways to provide unsolicited inbound internet access.",
+            "Confusing WAF application-layer filtering with Shield DDoS protection."
+          ]
+        },
+        {
+          "id": "1.3",
+          "name": "Determine appropriate data security controls",
+          "topics": [
+            {"id": "kms-encryption", "name": "KMS keys, policies, and encryption"},
+            {"id": "tls-certificates", "name": "TLS, ACM, and certificate lifecycle"},
+            {"id": "data-governance-backup", "name": "Data classification, retention, backup, and replication"}
+          ],
+          "selection_rules": [
+            "Select key ownership, rotation, and policy controls according to compliance and cross-account requirements.",
+            "Protect data in transit with TLS and use managed certificate lifecycle where the integration supports it.",
+            "Treat encryption, retention, backup, and replication as separate controls selected from the requirements."
+          ],
+          "common_confusions": [
+            "Assuming encryption alone provides backup or deletion protection.",
+            "Ignoring KMS key policy permissions when IAM permissions appear sufficient.",
+            "Confusing multi-AZ availability with cross-Region disaster recovery."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "resilient",
+      "name": "Design Resilient Architectures",
+      "weight": 26,
+      "official_reference": "https://docs.aws.amazon.com/aws-certification/latest/solutions-architect-associate-03/solutions-architect-associate-03-domain2.html",
+      "tasks": [
+        {
+          "id": "2.1",
+          "name": "Design scalable and loosely coupled architectures",
+          "topics": [
+            {"id": "decoupling-messaging", "name": "Queues, pub/sub, events, and workflow orchestration"},
+            {"id": "scalable-tiered-design", "name": "Scalable multi-tier and microservice architectures"},
+            {"id": "serverless-container-orchestration", "name": "Serverless and container orchestration patterns"}
+          ],
+          "selection_rules": [
+            "Use queues to buffer work and decouple processing rate; use pub/sub when multiple consumers need independent delivery.",
+            "Make compute tiers stateless when horizontal scaling and replacement are required.",
+            "Choose orchestration when steps, retries, and state transitions must be coordinated explicitly."
+          ],
+          "common_confusions": [
+            "Using a notification topic as a durable work queue for one competing-consumer group.",
+            "Scaling a stateful application tier without externalizing session state.",
+            "Adding synchronous dependencies where asynchronous tolerance is a stated requirement."
+          ]
+        },
+        {
+          "id": "2.2",
+          "name": "Design highly available and/or fault-tolerant architectures",
+          "topics": [
+            {"id": "multi-az-high-availability", "name": "Multi-AZ availability and failure isolation"},
+            {"id": "disaster-recovery-strategies", "name": "Backup/restore, pilot light, warm standby, and active/active"},
+            {"id": "routing-failover-observability", "name": "Routing, failover, health checks, quotas, and observability"}
+          ],
+          "selection_rules": [
+            "Use at least two Availability Zones to tolerate an Availability Zone failure when the service supports it.",
+            "Select a disaster recovery pattern by explicit RTO, RPO, cost, and operational constraints.",
+            "Remove single points of failure and ensure health checks measure the dependency that determines real availability."
+          ],
+          "common_confusions": [
+            "Treating read replicas as automatic high-availability failover in every database service.",
+            "Choosing active/active when a less expensive strategy meets the RTO and RPO.",
+            "Assuming a backup has a usable recovery time without restore testing and automation."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "high-performing",
+      "name": "Design High-Performing Architectures",
+      "weight": 24,
+      "official_reference": "https://docs.aws.amazon.com/aws-certification/latest/solutions-architect-associate-03/solutions-architect-associate-03-domain3.html",
+      "tasks": [
+        {
+          "id": "3.1",
+          "name": "Determine high-performing and/or scalable storage solutions",
+          "topics": [
+            {"id": "s3-ebs-efs-selection", "name": "Object, block, and file storage selection"},
+            {"id": "storage-performance-scaling", "name": "Storage throughput, IOPS, latency, and scaling"},
+            {"id": "hybrid-data-transfer", "name": "Hybrid storage and data transfer"}
+          ],
+          "selection_rules": [
+            "Select object, block, or file semantics before optimizing throughput and latency.",
+            "Match EBS volume and file-system performance modes to IOPS, throughput, attachment, and sharing requirements.",
+            "Choose online, accelerated, or offline transfer according to volume, network, and deadline constraints."
+          ],
+          "common_confusions": [
+            "Selecting storage only by capacity while ignoring access semantics.",
+            "Assuming all EC2 instances can share a normal EBS volume concurrently.",
+            "Using a data-transfer service that does not satisfy the required direction or storage endpoint."
+          ]
+        },
+        {
+          "id": "3.2",
+          "name": "Design high-performing and elastic compute solutions",
+          "topics": [
+            {"id": "compute-selection", "name": "EC2, Lambda, containers, and managed compute selection"},
+            {"id": "autoscaling-performance", "name": "Metrics-driven scaling and compute performance"},
+            {"id": "edge-distributed-compute", "name": "Edge and distributed compute"}
+          ],
+          "selection_rules": [
+            "Choose compute from execution duration, runtime control, scaling pattern, startup latency, and operational constraints.",
+            "Scale on a metric that tracks demand or backlog rather than an unrelated infrastructure metric.",
+            "Move latency-sensitive processing closer to users when the workload and consistency model allow it."
+          ],
+          "common_confusions": [
+            "Using average CPU for a queue-driven worker when queue depth represents demand better.",
+            "Choosing Lambda for workloads that exceed its execution or runtime constraints.",
+            "Confusing container orchestration responsibility across ECS, EKS, and Fargate."
+          ]
+        },
+        {
+          "id": "3.3",
+          "name": "Determine high-performing database solutions",
+          "topics": [
+            {"id": "database-selection", "name": "Relational, key-value, document, and in-memory database selection"},
+            {"id": "database-scaling-caching", "name": "Read scaling, connections, capacity, and caching"},
+            {"id": "database-migration", "name": "Database migration and modernization"}
+          ],
+          "selection_rules": [
+            "Start with access patterns, consistency, transactions, relationships, and scale before choosing an engine.",
+            "Use read replicas for read scaling and caching for suitable repeated reads; neither replaces correct write design.",
+            "Use connection pooling or managed proxies when bursty clients can exhaust database connections."
+          ],
+          "common_confusions": [
+            "Selecting DynamoDB merely because a workload is large without validating key access patterns.",
+            "Treating ElastiCache as a durable system of record.",
+            "Assuming a read replica accepts the same writes as the primary."
+          ]
+        },
+        {
+          "id": "3.4",
+          "name": "Determine high-performing and/or scalable network architectures",
+          "topics": [
+            {"id": "load-balancer-selection", "name": "Application and Network Load Balancer selection"},
+            {"id": "hybrid-global-networking", "name": "CloudFront, Global Accelerator, VPN, and Direct Connect"},
+            {"id": "vpc-routing-addressing", "name": "VPC addressing, subnets, routing, and scalable topology"}
+          ],
+          "selection_rules": [
+            "Select Layer 7 routing features or Layer 4 performance/static-IP behavior according to protocol requirements.",
+            "Use CloudFront for cacheable content and edge delivery; use Global Accelerator for supported non-cacheable global traffic needing static anycast IPs.",
+            "Plan non-overlapping address space and routing boundaries before connecting VPCs and on-premises networks."
+          ],
+          "common_confusions": [
+            "Choosing an ALB for protocols or static-IP requirements better served by an NLB.",
+            "Treating Direct Connect as encrypted by default.",
+            "Ignoring overlapping CIDR ranges in connected networks."
+          ]
+        },
+        {
+          "id": "3.5",
+          "name": "Determine high-performing data ingestion and transformation solutions",
+          "topics": [
+            {"id": "streaming-batch-ingestion", "name": "Streaming and batch ingestion"},
+            {"id": "data-lake-analytics", "name": "Data lakes and serverless analytics"},
+            {"id": "transformation-formats", "name": "Transformation, partitioning, and columnar formats"}
+          ],
+          "selection_rules": [
+            "Choose streaming or batch ingestion from latency, ordering, volume, and consumer requirements.",
+            "Separate durable lake storage, catalog/governance, transformation, and query responsibilities.",
+            "Use partitioning and compressed columnar formats to reduce analytical scan volume when appropriate."
+          ],
+          "common_confusions": [
+            "Using a delivery stream when custom per-record stream processing is required without accounting for its model.",
+            "Assuming CSV is optimal for repeated analytical scans.",
+            "Confusing data catalog metadata with the underlying stored data."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cost-optimized",
+      "name": "Design Cost-Optimized Architectures",
+      "weight": 20,
+      "official_reference": "https://docs.aws.amazon.com/aws-certification/latest/solutions-architect-associate-03/solutions-architect-associate-03-domain4.html",
+      "tasks": [
+        {
+          "id": "4.1",
+          "name": "Design cost-optimized storage solutions",
+          "topics": [
+            {"id": "storage-classes-lifecycle", "name": "Storage classes and lifecycle policies"},
+            {"id": "ebs-backup-archive-cost", "name": "EBS, backup, and archive cost optimization"},
+            {"id": "hybrid-storage-cost", "name": "Hybrid storage and transfer cost optimization"}
+          ],
+          "selection_rules": [
+            "Match storage class and lifecycle transitions to access frequency, retrieval time, retention, and minimum-duration constraints.",
+            "Right-size provisioned storage performance independently from stored capacity where the service allows it.",
+            "Include retrieval and data-transfer charges rather than comparing storage price alone."
+          ],
+          "common_confusions": [
+            "Moving short-lived objects into classes with incompatible minimum storage durations.",
+            "Treating the lowest per-GB storage tier as cheapest regardless of retrieval frequency.",
+            "Retaining obsolete snapshots without lifecycle or retention controls."
+          ]
+        },
+        {
+          "id": "4.2",
+          "name": "Design cost-optimized compute solutions",
+          "topics": [
+            {"id": "compute-purchase-options", "name": "On-Demand, Spot, Savings Plans, and Reserved Instances"},
+            {"id": "serverless-container-cost", "name": "Serverless, container, and instance cost trade-offs"},
+            {"id": "rightsizing-scheduling", "name": "Rightsizing, scaling, and scheduling"}
+          ],
+          "selection_rules": [
+            "Choose commitment discounts for predictable eligible usage and Spot for interruption-tolerant capacity.",
+            "Compare utilization and operational overhead when choosing serverless, containers, or instances.",
+            "Stop, schedule, hibernate, or scale non-production capacity when availability requirements permit."
+          ],
+          "common_confusions": [
+            "Using Spot Instances for an irreplaceable, interruption-intolerant singleton.",
+            "Buying commitments before rightsizing and understanding baseline usage.",
+            "Assuming serverless is always least expensive at sustained high utilization."
+          ]
+        },
+        {
+          "id": "4.3",
+          "name": "Design cost-optimized database solutions",
+          "topics": [
+            {"id": "database-capacity-cost", "name": "Database engine and capacity cost"},
+            {"id": "database-retention-replication-cost", "name": "Retention, backup, and replication cost"},
+            {"id": "caching-proxy-cost", "name": "Caching and connection efficiency"}
+          ],
+          "selection_rules": [
+            "Match provisioned, autoscaled, or on-demand capacity to workload predictability and utilization.",
+            "Retain only the backups and replicas required by recovery, compliance, and read-scaling needs.",
+            "Use caching or connection management when it reduces database load enough to justify its own cost and complexity."
+          ],
+          "common_confusions": [
+            "Adding replicas for availability or reads without including their ongoing cost.",
+            "Choosing an engine by hourly price while ignoring administration and licensing.",
+            "Keeping production retention and availability settings for disposable environments without a requirement."
+          ]
+        },
+        {
+          "id": "4.4",
+          "name": "Design cost-optimized network architectures",
+          "topics": [
+            {"id": "data-transfer-cost", "name": "Data-transfer paths and edge caching cost"},
+            {"id": "nat-endpoint-cost", "name": "NAT gateways and VPC endpoints"},
+            {"id": "connectivity-topology-cost", "name": "Peering, Transit Gateway, VPN, and Direct Connect cost"}
+          ],
+          "selection_rules": [
+            "Trace the actual traffic path and direction, including cross-AZ and cross-Region legs, before comparing cost.",
+            "Use an appropriate VPC endpoint when private service traffic and expected volume justify it.",
+            "Choose connectivity topology from scale, throughput, availability, operations, and total transfer/attachment costs."
+          ],
+          "common_confusions": [
+            "Ignoring NAT processing charges for high-volume AWS service traffic.",
+            "Centralizing traffic without accounting for cross-AZ and appliance processing charges.",
+            "Assuming VPC peering is transitive."
+          ]
+        }
+      ]
+    }
+  ]
+}
