@@ -11,8 +11,6 @@ author: "AWS SAA Study Coach contributors"
 An adaptive, privacy-first study coach for the **AWS Certified Solutions Architect - Associate (SAA-C03)** examination. It provides 9 specialized study skills powered by a local, persistent learner-memory MCP server with zero third-party dependencies.
 
 > **Privacy Contract:** This Power never stores question stems, option texts, or chat transcripts in persistence. Only structured learning telemetry (domain/task/topic IDs, correctness booleans, difficulty, confidence levels, time spent, misconception tags, and scenario rubric dimensions) is saved, and all of it stays on the learner's machine.
->
-> **Adoption reporting:** when a team endpoint is configured, the Power reports *that* a session started and finished — install ID, `username@hostname`, activity type, mode, question counts, duration, version, OS, timestamp. It never transmits `learner_id`, correctness, mastery, domains, topics, misconceptions, rubrics, or flashcard content. Disable it on a machine with `AWS_SAA_TELEMETRY_DISABLED=1`.
 
 ---
 
@@ -29,6 +27,18 @@ This Power equips the agent with 9 dedicated study skills located in `skills/`:
 7. **`review-progress`**: Generates progress reports across all 4 domains, 14 tasks, and 42 topics, highlighting confidence calibration and demonstrated misconceptions.
 8. **`teach-topic`**: SAA-C03 deep-dive explanations comparing architectural trade-offs, selection rules, and common AWS service confusions.
 9. **`question-quality`**: Audits and gates all practice questions against `docs/question-quality-rubric.md` to ensure complete stems, plausible distractors, and no exam-dump claims.
+
+---
+
+## Turn-Taking Contract (highest priority)
+Applies to EVERY flow that asks the learner something: quiz, diagnostic, mock, flashcards, teach retrieval check, scenario.
+
+1. **ONE question per message.** Each assistant message contains exactly one question (or one flashcard prompt). After the answer prompt, STOP and end your turn.
+2. **Wait for the reply.** Send the next question only after the learner's reply arrives and, in immediate-feedback flows, after it is graded and recorded with `record_quiz_attempt`.
+3. **No batching.** Never pre-generate, preview, list, or batch upcoming questions. Never answer or simulate a reply on the learner's behalf.
+4. **Delayed-scoring flows (diagnostic, mock).** Still ONE question per message. After each reply, record it silently, say only `Answer recorded.`, then present the next question. No feedback.
+
+Anti-example: a message that contains both `Question 1 of 5` and `Question 2 of 5` violates this contract.
 
 ---
 
@@ -84,29 +94,29 @@ Defined in `mcp.json` and implemented in `study-memory-mcp/server.py` via standa
 
 ### 1. Initial Diagnostic Baseline
 ```text
-"Start the 14-question SAA-C03 diagnostic for learner miguel and withhold feedback until completion."
+"Start the 14-question SAA-C03 diagnostic for learner-01 and withhold feedback until completion."
 ```
 
 ### 2. Set Study Target & Preferences
 ```text
-"Set my exam date to 2026-11-15 with 5 hours per week and 30-minute sessions for learner miguel."
+"Set my exam date to 2026-11-15 with 5 hours per week and 30-minute sessions for learner-01."
 ```
 
 ### 3. Adaptive Study Recommendation
 ```text
-"What should learner miguel study today?"
+"What should learner-01 study today?"
 ```
 
 ### 4. Topic Explanation & Quizzes
 ```text
 "Teach me Amazon Aurora Global Database vs. RDS Read Replicas for SAA-C03."
-"Quiz learner miguel on Domain 1: Design Secure Architectures with 3 standard questions."
+"Quiz learner-01 on Domain 1: Design Secure Architectures with 3 standard questions."
 ```
 
 ### 5. Timed Mini or Full Mock Exam
 ```text
-"Start a 20-question SAA-C03 mini mock for learner miguel."
-"Start a 65-question full SAA-C03 mock for learner miguel."
+"Start a 20-question SAA-C03 mini mock for learner-01."
+"Start a 65-question full SAA-C03 mock for learner-01."
 ```
 
 ### 6. Architecture Scenario Drill
@@ -116,8 +126,8 @@ Defined in `mcp.json` and implemented in `study-memory-mcp/server.py` via standa
 
 ### 7. Spaced Repetition Flashcards
 ```text
-"Create a flashcard for learner miguel on the difference between Gateway and Interface VPC Endpoints."
-"Review my due flashcards for learner miguel."
+"Create a flashcard for learner-01 on the difference between Gateway and Interface VPC Endpoints."
+"Review my due flashcards for learner-01."
 ```
 
 ---
@@ -130,4 +140,3 @@ The learner SQLite database defaults to:
 ```
 You can override the database path by setting the `AWS_SAA_STUDY_DB` environment variable.
 
-The same file holds the adoption-telemetry outbox (`telemetry_outbox`, `telemetry_state`). Those tables are additive and sit outside the learner-memory schema, so `PRAGMA user_version` stays at `2`.

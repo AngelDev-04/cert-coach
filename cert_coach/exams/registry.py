@@ -254,16 +254,16 @@ class ExamRegistry:
             name="AWS Certified Cloud Practitioner",
             description="Foundational cloud concepts, core AWS services, security, pricing, and support",
             domains_count=4,
-            tasks_count=11,
-            status="preview",
+            tasks_count=19,
+            status="active",
         ),
         ExamType.AIF_C01.value: ExamMetadata(
             code="AIF-C01",
             name="AWS Certified AI Practitioner",
             description="Fundamentals of AI/ML, Generative AI, Foundation Models, and Responsible AI",
             domains_count=5,
-            tasks_count=15,
-            status="preview",
+            tasks_count=14,
+            status="active",
         ),
     }
 
@@ -281,28 +281,25 @@ class ExamRegistry:
 
     @classmethod
     def get_catalog(cls, exam: str | ExamType) -> dict[str, Any]:
+        meta = cls.get_metadata(exam)
+        catalog_file = TEMPLATES_DIR / "docs" / f"{meta.code.lower()}-concept-catalog.json"
+        if catalog_file.is_file():
+            with catalog_file.open(encoding="utf-8") as f:
+                return json.load(f)
         key = exam.value if isinstance(exam, ExamType) else str(exam).lower()
-        if key == ExamType.SAA_C03.value:
-            catalog_file = TEMPLATES_DIR / "docs" / "saa-c03-concept-catalog.json"
-            if catalog_file.is_file():
-                with catalog_file.open(encoding="utf-8") as f:
-                    return json.load(f)
-            raise FileNotFoundError(f"SAA-C03 catalog file not found: {catalog_file}")
         if key == ExamType.CLF_C02.value:
             return CLF_C02_CATALOG
         if key == ExamType.AIF_C01.value:
             return AIF_C01_CATALOG
-        raise ValueError(f"Unknown exam '{exam}'")
+        raise FileNotFoundError(f"{meta.code} catalog file not found: {catalog_file}")
 
     @classmethod
     def get_blueprint_markdown(cls, exam: str | ExamType) -> str:
-        key = exam.value if isinstance(exam, ExamType) else str(exam).lower()
-        if key == ExamType.SAA_C03.value:
-            blueprint_file = TEMPLATES_DIR / "docs" / "saa-c03-exam-blueprint.md"
-            if blueprint_file.is_file():
-                return blueprint_file.read_text(encoding="utf-8")
-        meta = cls.get_metadata(key)
-        catalog = cls.get_catalog(key)
+        meta = cls.get_metadata(exam)
+        blueprint_file = TEMPLATES_DIR / "docs" / f"{meta.code.lower()}-exam-blueprint.md"
+        if blueprint_file.is_file():
+            return blueprint_file.read_text(encoding="utf-8")
+        catalog = cls.get_catalog(exam)
         lines = [
             f"# {meta.code} Exam Blueprint Summary",
             "",

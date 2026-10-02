@@ -36,23 +36,34 @@ class ExamRegistryTests(unittest.TestCase):
 
     def test_clf_c02_catalog_has_valid_weights(self) -> None:
         catalog = ExamRegistry.get_catalog("clf-c02")
+        meta = ExamRegistry.get_metadata("clf-c02")
         self.assertEqual(catalog["exam_code"], "CLF-C02")
+        self.assertEqual(meta.status, "active")
+        self.assertEqual(meta.tasks_count, 19)
         total_weight = sum(d["weight"] for d in catalog["domains"])
         self.assertEqual(total_weight, 100)
         self.assertEqual(len(catalog["domains"]), 4)
+        total_tasks = sum(len(d["tasks"]) for d in catalog["domains"])
+        self.assertEqual(total_tasks, 19)
 
     def test_aif_c01_catalog_has_valid_weights(self) -> None:
         catalog = ExamRegistry.get_catalog("aif-c01")
+        meta = ExamRegistry.get_metadata("aif-c01")
         self.assertEqual(catalog["exam_code"], "AIF-C01")
+        self.assertEqual(meta.status, "active")
+        self.assertEqual(meta.tasks_count, 14)
         total_weight = sum(d["weight"] for d in catalog["domains"])
         self.assertEqual(total_weight, 100)
         self.assertEqual(len(catalog["domains"]), 5)
+        total_tasks = sum(len(d["tasks"]) for d in catalog["domains"])
+        self.assertEqual(total_tasks, 14)
 
     def test_blueprint_markdown_generation(self) -> None:
         for exam in ("saa-c03", "clf-c02", "aif-c01"):
             md = ExamRegistry.get_blueprint_markdown(exam)
             self.assertIn("#", md)
             self.assertIn("Domain", md)
+            self.assertIn("Weighted domains", md)
 
 
 if __name__ == "__main__":

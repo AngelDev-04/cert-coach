@@ -7,6 +7,7 @@ import shutil
 from pathlib import Path
 
 from cert_coach.adapters.base import BaseHarnessAdapter
+from cert_coach.adapters.pacing import TURN_TAKING_CONTRACT
 from cert_coach.core.config import TEMPLATES_DIR
 from cert_coach.core.models import HarnessType
 from cert_coach.exams.registry import ExamRegistry
@@ -53,6 +54,11 @@ An adaptive, privacy-first study coach for the **{exam_meta.name} ({exam_meta.co
 Equipped with 9 specialized study skills powered by a local, persistent learner-memory MCP server.
 
 > **Privacy Contract:** Never stores question stems or chat transcripts. Only structured telemetry is saved locally.
+
+---
+
+{TURN_TAKING_CONTRACT}
+Full contracts live in `steering/steering.md`, which is loaded on every session.
 """
         power_md_path.write_text(power_content, encoding="utf-8")
         created.append(power_md_path)
@@ -102,7 +108,9 @@ Equipped with 9 specialized study skills powered by a local, persistent learner-
             shutil.copy2(src_steering, steering_path)
         else:
             steering_path.write_text(
-                "---\ninclusion: always\n---\n\n# Study Coach Steering\n\nFollow Question Presentation Contract.\n",
+                "---\ninclusion: always\n---\n\n# Study Coach Steering\n\n"
+                + TURN_TAKING_CONTRACT
+                + "\nFollow Question Presentation Contract.\n",
                 encoding="utf-8"
             )
         created.append(steering_path)
@@ -130,5 +138,6 @@ Equipped with 9 specialized study skills powered by a local, persistent learner-
             "Kiro Setup:\n"
             "  1. Open Kiro -> Powers -> Add Custom Power -> Import power from a folder\n"
             f"  2. Select: {workspace_root}\n"
-            "  3. In Kiro chat, test: 'Start a diagnostic for learner miguel'"
+            "  3. In Kiro chat, test: 'Start a diagnostic for learner-01'\n"
+            f"  Kiro CLI: cd {workspace_root} && kiro-cli"
         )

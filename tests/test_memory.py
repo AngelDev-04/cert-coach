@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import os
 import sqlite3
+import stat
 import sys
 import tempfile
 import unittest
@@ -220,6 +222,14 @@ class StudyMemoryTests(unittest.TestCase):
 
 
 class MigrationTests(unittest.TestCase):
+    @unittest.skipIf(os.name == "nt", "POSIX permissions only")
+    def test_new_database_is_owner_only(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database = Path(temp_dir) / "private" / "fresh.sqlite3"
+            StudyMemory(database)
+            self.assertEqual(stat.S_IMODE(database.stat().st_mode), 0o600)
+            self.assertEqual(stat.S_IMODE(database.parent.stat().st_mode) & 0o077, 0)
+
     def test_v1_database_is_migrated_additively(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             database = Path(directory) / "v1.sqlite3"

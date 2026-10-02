@@ -2,59 +2,12 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any
 
 from cert_coach.core.config import DEFAULT_SHARED_DB
 from cert_coach.core.models import ExamType, HarnessType
 from cert_coach.exams.registry import ExamRegistry
 from cert_coach.ui.console import console
-
-
-def prompt_workspace_path(default: str = ".") -> Path:
-    """Prompt user for target workspace directory."""
-    raw_cwd = Path.cwd().resolve()
-    # If the user is currently inside the cert_coach package directory, default to the repository root
-    cwd = raw_cwd.parent if raw_cwd.name == "cert_coach" else raw_cwd
-
-    prompt_msg = (
-        f"Where would you like to initialize your study coach?\n"
-        f"  (Press Enter to initialize in [{cwd.name}/], or paste/type folder path):"
-    )
-
-    def validate_path(text: str) -> bool | str:
-        cleaned = text.strip()
-        if "@" in cleaned and ":" in cleaned and ("$" in cleaned or "#" in cleaned):
-            return "That looks like a terminal prompt. Press Enter for repository root, or type a clean folder path."
-        return True
-
-    try:
-        import questionary
-
-        response = questionary.text(
-            prompt_msg,
-            default="",
-            validate=validate_path,
-        ).ask()
-        if response is None:
-            raise KeyboardInterrupt
-        cleaned = response.strip()
-        if not cleaned or cleaned == ".":
-            return cwd
-        return Path(cleaned).expanduser().resolve()
-    except (KeyboardInterrupt, SystemExit):
-        raise
-    except Exception:
-        from rich.prompt import Prompt
-
-        val = Prompt.ask(
-            f"Workspace directory (Press Enter for [{cwd.name}/], or paste folder path)",
-            default="",
-        )
-        cleaned = val.strip() if val else ""
-        if not cleaned or cleaned == ".":
-            return cwd
-        return Path(cleaned).expanduser().resolve()
 
 
 def prompt_harness_selection(defaults: list[str] | None = None) -> list[str]:

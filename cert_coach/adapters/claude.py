@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from cert_coach.adapters.base import BaseHarnessAdapter
+from cert_coach.adapters.pacing import PACING_LINE, TURN_TAKING_CONTRACT
 from cert_coach.core.config import TEMPLATES_DIR
 from cert_coach.core.models import HarnessType
 from cert_coach.exams.registry import ExamRegistry
@@ -36,7 +37,7 @@ User arguments: $ARGUMENTS
    - Primary task/topic target.
    - Activity type.
 6. Ask the learner for immediate confirmation to launch the first activity.
-7. Upon confirmation, launch the activity. At completion, refresh progress and report what evidence changed.
+7. Upon confirmation, launch the activity and follow its command's loop exactly: ONE question per message, then STOP and wait for the learner's reply. At completion, refresh progress and report what evidence changed.
 """,
 
     "diagnostic": """---
@@ -49,21 +50,28 @@ argument-hint: [learner_id]
 Run an initial diagnostic assessment sampling all official task statements with feedback withheld until the end.
 User arguments: $ARGUMENTS
 
-## Workflow Instructions
+{{PACING}}
+
+## Setup
 1. Resolve `learner_id` from $ARGUMENTS (default: `learner-01`).
 2. Call `get_progress` to check existing evidence baseline. If baseline already exists, inform learner and confirm if they wish to rerun.
 3. Generate stable session and event IDs. Call `start_study_session` with `activity_type="diagnostic"`, `mode="diagnostic"`, and `target_questions=14`.
-4. Ask exactly 1 original standard-difficulty question per official task statement (14 questions total) using `get_exam_catalog`.
-5. Strictly adhere to the **Question Presentation Contract** in `CLAUDE.md`:
-   - Head each item with position only: `Question X of 14`.
-   - NEVER name the domain, task, topic, difficulty, or service under test in the question header or stem before the learner answers.
+4. Plan 1 original standard-difficulty question per official task statement (14 total) using `get_exam_catalog`. Write each question only when it is its turn.
+
+## Question Loop (for i = 1..14)
+a. Present **only** `Question i of 14`, following the **Question Presentation Contract** in `CLAUDE.md`:
+   - Head the item with position only: `Question i of 14`.
+   - NEVER name the domain, task, topic, difficulty, or service under test in the header or stem before the learner answers.
    - Distribute the correct answer evenly across A, B, C, D (no single letter in >40% of items).
    - Balance distractors in length, specificity, and grammar.
    - Explicitly state format: single-answer ("Choose one:") or multiple-response ("Choose TWO:").
-   - Collect learner's answer and optional confidence level (`low`, `medium`, `high`).
-6. **Withhold all scoring, feedback, and option rationales until all 14 questions are completed** to avoid biasing baseline evidence.
-7. Silently record each attempt with `record_quiz_attempt` using canonical `topic_id`, `activity_type="diagnostic"`, and `session_id`.
-8. After question 14 (or upon early termination):
+   - Ask for the answer and optional confidence (`low`, `medium`, `high`).
+b. End your message there. STOP and wait for the learner's reply.
+c. On reply: grade silently and call `record_quiz_attempt` with canonical `topic_id`, `activity_type="diagnostic"`, and `session_id`.
+d. Reply with only `Answer recorded.` plus `Question i+1 of 14`. **Withhold all scoring, feedback, and option rationales until all 14 questions are completed** to avoid biasing baseline evidence.
+
+## Wrap-Up
+After question 14 (or upon early termination):
    - Call `complete_study_session`.
    - Render a comprehensive baseline report: sampled vs unsampled tasks, demonstrated misconceptions, confidence calibration, and recommended next study area.
    - Disclose that the result is an evidence baseline, not a pass predictor or mock exam score.
@@ -79,24 +87,32 @@ argument-hint: [topic, task, or domain] [question_count]
 Run a targeted, adaptive quiz on a requested domain, task, or topic with immediate feedback and misconception tracking.
 User arguments: $ARGUMENTS
 
-## Workflow Instructions
-1. Determine `learner_id` (default: `learner-01`). Parse focus area and question count (default: 3 to 5) from $ARGUMENTS. If no focus is specified, call `get_study_recommendation` to select the highest-priority task.
+{{PACING}}
+
+## Setup
+1. Determine `learner_id` (default: `learner-01`). Parse focus area and question count N (default: 3 to 5) from $ARGUMENTS. If no focus is specified, call `get_study_recommendation` to select the highest-priority task.
 2. Call `get_exam_catalog` for the target task/topic to load canonical selection rules and common confusions.
-3. Generate stable session and event IDs. Call `start_study_session` with `activity_type="quiz"`, `mode="custom"`, and `target_questions=count`.
-4. Present original questions one at a time following the **Question Presentation Contract**:
-   - Head each question with `Question X of Y` only.
+3. Generate stable session and event IDs. Call `start_study_session` with `activity_type="quiz"`, `mode="custom"`, and `target_questions=N`.
+
+## Question Loop (for i = 1..N)
+a. Present **only** `Question i of N`, following the **Question Presentation Contract**:
+   - Head the question with `Question i of N` only.
    - Do NOT reveal domain, task, topic, difficulty, or service under test before the learner answers.
    - Vary the correct option letter across the quiz set.
    - Balance distractors in length and detail; each distractor must target a plausible misconception.
    - State clearly whether single-answer or multiple-response (with exact selection count).
-   - Ask for answer and optional confidence level (`low`, `medium`, `high`).
-5. After the learner answers:
+   - Ask for the answer and optional confidence (`low`, `medium`, `high`).
+b. End your message there. STOP and wait for the learner's reply. Never answer it yourself.
+c. On reply:
    - Grade against stated requirements.
    - Reveal canonical domain, task, topic, and difficulty.
    - Provide option-by-option rationale explaining why the correct choice meets all requirements and why every distractor fails.
    - Identify any demonstrated misconception.
    - Record attempt with `record_quiz_attempt(learner_id=..., event_id=..., topic_id=..., correct=..., session_id=..., confidence=..., misconception=...)`.
-6. After all questions, call `complete_study_session`, summarize evidence gained, and call `get_study_recommendation` for next steps.
+d. If i < N, the same message may end with `Question i+1 of N` (still only one new question). Then STOP again.
+
+## Wrap-Up
+After question N, call `complete_study_session`, summarize evidence gained, and call `get_study_recommendation` for next steps.
 """,
 
     "mock": """---
@@ -109,19 +125,26 @@ argument-hint: [mini | full | custom <count>]
 Run a simulated mock exam: mini (20 questions) or full (65 questions) distributed by official domain weights with delayed scoring.
 User arguments: $ARGUMENTS
 
-## Workflow Instructions
+{{PACING}}
+
+## Setup
 1. Determine mode from $ARGUMENTS: `mini` (20 questions), `full` (65 questions), or `custom <N>`. Default: confirm with learner before starting.
 2. Generate stable session and event IDs. Call `start_study_session` with `activity_type="mock"` and `mode=mode`.
 3. Follow the session's `domain_plan` to distribute questions according to official exam weights:
    - Secure (30%), Resilient (26%), High-Performing (24%), Cost-Optimized (20%).
-4. Present questions one by one according to the **Question Presentation Contract**:
-   - Head each item with position only: `Question X of Y`.
+
+## Question Loop (for i = 1..N)
+a. Present **only** `Question i of N`, following the **Question Presentation Contract**:
+   - Head the item with position only: `Question i of N`.
    - Never reveal domain, task, or tested services in the header.
    - Support learner question flagging (learner can append `[flag]` to mark for review).
    - Vary correct answer positions across the entire exam set.
-5. **Withhold all grading, domain cues, and explanations during the active mock.**
-6. Silently record each question attempt with `record_quiz_attempt` using `activity_type="mock"`, `flagged=bool`, and strict correctness.
-7. After all questions are submitted (or explicit learner early finish):
+b. End your message there. STOP and wait for the learner's reply.
+c. On reply: grade silently and call `record_quiz_attempt` with `activity_type="mock"`, `flagged=bool`, and strict correctness.
+d. Reply with only `Answer recorded.` plus `Question i+1 of N`. **Withhold all grading, domain cues, and explanations during the active mock.**
+
+## Wrap-Up
+After all questions are submitted (or explicit learner early finish):
    - Call `complete_study_session`.
    - Render a detailed performance report: overall score, domain-by-domain score against official weights, flagged item review, demonstrated misconceptions, and confidence calibration.
    - Offer `get_study_recommendation` for targeted remediation.
@@ -137,25 +160,28 @@ argument-hint: [limit] [learner_id]
 Conduct an active-recall flashcard review drill using the SM-2 algorithm schedule with answers withheld during recall.
 User arguments: $ARGUMENTS
 
-## Workflow Instructions
+**Pacing (mandatory): ONE question per message: show exactly one card prompt, then STOP and wait for the learner's recall attempt. Do NOT show Card 2 in the same message as Card 1.**
+
+## Setup
 1. Resolve `learner_id` from $ARGUMENTS (default: `learner-01`) and optional limit (default: 10).
 2. Call `get_due_flashcards(learner_id=learner_id, limit=limit)`.
    - Note: This tool returns card prompts, card IDs, and topics **WITHOUT answers** to enforce active recall.
 3. If no cards are due:
    - Inform the learner that all cards are up to date.
    - Offer to create new flashcards on recent study topics using `save_flashcard`.
-4. For each due card:
-   - Present the prompt and topic label **WITHOUT revealing the answer**.
-   - Prompt the learner to recall mentally or type their answer.
-   - After the learner submits their recall attempt, call `get_flashcard_answer(learner_id=learner_id, flashcard_id=card_id)`.
-   - Present the canonical answer and compare with the learner's response (focusing on core architectural principles, not exact phrasing).
-   - Ask the learner to rate recall performance:
-     * `again` (1): complete blackout or incorrect recall
-     * `hard` (2): correct but effortful or partially recalled
-     * `good` (3): correct with normal recall effort
-     * `easy` (4): instantaneous, confident recall
-   - Call `review_flashcard(learner_id=learner_id, flashcard_id=card_id, event_id=new_event_id, rating=rating)`.
-5. Summarize the review session: number of cards reviewed, rating breakdown, and next review intervals.
+
+## Card Loop (for i = 1..N due cards)
+a. Present **only** `Card i of N`: the prompt and topic label **WITHOUT revealing the answer**. Ask the learner to type their recall attempt.
+b. End your message there. STOP and wait for the learner's reply.
+c. On reply: call `get_flashcard_answer(learner_id=learner_id, flashcard_id=card_id)`. Present the canonical answer and compare with the learner's response (core architectural principles, not exact phrasing). Ask the learner to rate recall, then STOP and wait:
+   * `again` (1): complete blackout or incorrect recall
+   * `hard` (2): correct but effortful or partially recalled
+   * `good` (3): correct with normal recall effort
+   * `easy` (4): instantaneous, confident recall
+d. On rating: call `review_flashcard(learner_id=learner_id, flashcard_id=card_id, event_id=new_event_id, rating=rating)`, then present `Card i+1 of N` only.
+
+## Wrap-Up
+Summarize the review session: number of cards reviewed, rating breakdown, and next review intervals.
 """,
 
     "progress": """---
@@ -210,7 +236,8 @@ User arguments: $ARGUMENTS
    - **4. Common Pitfalls & Confusions**: Highlight exam traps and easily confused AWS services from catalog.
 5. **Comprehension Retrieval Question**:
    - Present exactly 1 original retrieval question following the **Question Presentation Contract** (heading: `Retrieval Check`, no answer cues, balanced options).
-   - Require learner to answer (with optional confidence rating) before revealing the explanation.
+   - **Pacing: ONE question per message.** End your message right after the retrieval question and STOP. Do not reveal the answer or explanation in the same message.
+   - Only after the learner answers (with optional confidence rating), grade it and reveal the explanation.
 6. After grading the retrieval question:
    - Offer to save key decision rules to flashcards using `save_flashcard`.
    - Offer a follow-up `/quiz` or `/scenario` on this topic.
@@ -232,7 +259,7 @@ User arguments: $ARGUMENTS
 3. Present a realistic enterprise architectural scenario with explicit constraints:
    - Business & technical requirements (scalability, RPO/RTO, compliance, budget, SLA).
    - Do NOT provide the solution. Ask the learner to propose an architecture and justify trade-offs.
-4. Wait for the learner's complete architectural proposal.
+4. **Pacing: ONE question per message.** End your message after the scenario prompt and STOP. Wait for the learner's complete architectural proposal. Ask any clarifying follow-up one at a time, each in its own message. Never write the learner's proposal for them.
 5. Evaluate the proposal against the 6 standard scenario rubric dimensions (each scored 0–4):
    - `requirements` (0-4): Meets stated business and technical constraints.
    - `service_selection` (0-4): Appropriate AWS services for workload and access patterns.
@@ -318,6 +345,10 @@ User arguments: $ARGUMENTS
 """,
 }
 
+CLAUDE_COMMANDS = {
+    name: body.replace("{{PACING}}", PACING_LINE) for name, body in CLAUDE_COMMANDS.items()
+}
+
 
 class ClaudeCodeAdapter(BaseHarnessAdapter):
     """Generates Claude Code configuration (CLAUDE.md, .claude/commands/, .mcp.json)."""
@@ -351,6 +382,9 @@ class ClaudeCodeAdapter(BaseHarnessAdapter):
 You are an expert, privacy-first AI study coach for the **{exam_meta.name} ({exam_meta.code})** exam.
 You provide original practice, spaced repetition, architecture trade-off drills, and diagnostic assessments using the local `study-memory` MCP server.
 
+---
+
+{TURN_TAKING_CONTRACT}
 ---
 
 ## Strict Question Presentation Contract

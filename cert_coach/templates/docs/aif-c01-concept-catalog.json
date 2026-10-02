@@ -1,0 +1,514 @@
+{
+  "schema_version": "1.0",
+  "exam_code": "AIF-C01",
+  "verified_on": "2026-09-09",
+  "official_exam_guide": "https://docs.aws.amazon.com/aws-certification/latest/ai-practitioner-01/ai-practitioner-01.html",
+  "passing_score": 700,
+  "scale_max": 1000,
+  "domains": [
+    {
+      "id": "fundamentals-ai-ml",
+      "name": "Fundamentals of AI and ML",
+      "weight": 20,
+      "official_reference": "https://docs.aws.amazon.com/aws-certification/latest/ai-practitioner-01/ai-practitioner-01-domain1.html",
+      "tasks": [
+        {
+          "id": "1.1",
+          "name": "Explain basic AI concepts and terminologies.",
+          "topics": [
+            {
+              "id": "ai-ml-dl-definitions",
+              "name": "AI, ML, Deep Learning & Neural Network Concepts"
+            },
+            {
+              "id": "inferencing-types",
+              "name": "Batch, Real-Time, Asynchronous & Serverless Inferencing"
+            },
+            {
+              "id": "ai-data-types",
+              "name": "Data Types: Tabular, Time-Series, Image, Text, Structured vs Unstructured"
+            },
+            {
+              "id": "learning-paradigms",
+              "name": "Supervised, Unsupervised & Reinforcement Learning"
+            }
+          ],
+          "selection_rules": [
+            "Select supervised learning when labeled ground-truth targets exist; choose unsupervised learning for clustering and pattern discovery without labels.",
+            "Choose real-time inferencing for interactive millisecond responses; choose batch inferencing for scheduled high-throughput offline processing.",
+            "Distinguish deep learning neural networks from classical ML algorithms based on autonomous representation learning and massive data scaling."
+          ],
+          "common_confusions": [
+            "Confusing real-time inference endpoints with asynchronous or batch transform jobs.",
+            "Assuming reinforcement learning is supervised because it uses feedback and rewards.",
+            "Confusing labeled structured tabular data with unstructured multimodal inputs."
+          ]
+        },
+        {
+          "id": "1.2",
+          "name": "Identify practical use cases for AI.",
+          "topics": [
+            {
+              "id": "ai-business-value",
+              "name": "AI Value Proposition, Decision Support & Scalability"
+            },
+            {
+              "id": "ai-applicability-limits",
+              "name": "When AI Is Not Appropriate & Deterministic Alternatives"
+            },
+            {
+              "id": "ml-techniques-mapping",
+              "name": "Technique Selection: Regression, Classification, Clustering"
+            },
+            {
+              "id": "aws-managed-ai-services",
+              "name": "AWS Managed AI Services (Transcribe, Translate, Comprehend, Lex, Polly)"
+            },
+            {
+              "id": "traditional-ml-vs-fms",
+              "name": "Traditional ML vs Foundation Models Selection Criteria"
+            }
+          ],
+          "selection_rules": [
+            "Use deterministic rule-based algorithms rather than ML when exact, auditable mathematical logic without variance is required.",
+            "Prefer pre-trained AWS managed AI services (Comprehend, Transcribe, Polly) over custom models when standard NLP/audio tasks meet requirements.",
+            "Choose classification for discrete categorical prediction, regression for continuous numerical values, and clustering for grouping unlabelled records."
+          ],
+          "common_confusions": [
+            "Using an expensive generative LLM where a lightweight classification model or deterministic rule solves the problem.",
+            "Confusing Amazon Lex conversational bots with Amazon Polly text-to-speech synthesis.",
+            "Attempting to train custom models when managed pre-trained APIs already provide turn-key capabilities."
+          ]
+        },
+        {
+          "id": "1.3",
+          "name": "Describe the AI/ML development lifecycle.",
+          "topics": [
+            {
+              "id": "ml-pipeline-stages",
+              "name": "AI/ML Pipeline: Data Prep, Training, Tuning, Inference"
+            },
+            {
+              "id": "fm-sourcing-options",
+              "name": "Foundation Model Sourcing: Pre-trained, Custom, Open Source"
+            },
+            {
+              "id": "model-deployment-methods",
+              "name": "Production Deployment: Managed APIs vs Self-Hosted Endpoints"
+            },
+            {
+              "id": "mlops-fundamentals",
+              "name": "MLOps: Experiment Tracking, CI/CD, Model Monitoring & Retraining"
+            },
+            {
+              "id": "model-evaluation-metrics",
+              "name": "Evaluation Metrics: Accuracy, Precision, Recall, F1 & Business ROI"
+            }
+          ],
+          "selection_rules": [
+            "Optimize for precision when false positives are costly (e.g., fraud prevention); optimize for recall when false negatives are critical (e.g., security threat detection).",
+            "Implement continuous model monitoring to detect data drift and concept drift before degrading production inferences.",
+            "Prefer managed API endpoints (SageMaker Serverless / Bedrock APIs) to reduce operational burden for intermittent workloads."
+          ],
+          "common_confusions": [
+            "Assuming high accuracy alone guarantees model quality on imbalanced datasets without checking precision and recall.",
+            "Treating ML deployment as a one-time release rather than a monitored, recurring MLOps lifecycle.",
+            "Confusing data drift (input distribution shifts) with concept drift (target relationship shifts)."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fundamentals-gen-ai",
+      "name": "Fundamentals of GenAI",
+      "weight": 24,
+      "official_reference": "https://docs.aws.amazon.com/aws-certification/latest/ai-practitioner-01/ai-practitioner-01-domain2.html",
+      "tasks": [
+        {
+          "id": "2.1",
+          "name": "Explain the basic concepts of generative AI (GenAI).",
+          "topics": [
+            {
+              "id": "gen-ai-foundations",
+              "name": "Tokens, Embeddings, Vectors & Transformer Architectures"
+            },
+            {
+              "id": "multimodal-diffusion",
+              "name": "Diffusion Models & Multimodal Generation (Text, Image, Audio, Video)"
+            },
+            {
+              "id": "fm-lifecycle",
+              "name": "Foundation Model Lifecycle: Data Selection, Pre-training, Fine-tuning, Deployment"
+            },
+            {
+              "id": "token-economics",
+              "name": "Token-Based Pricing, Context Windows & Inference Economics"
+            },
+            {
+              "id": "agentic-ai-concepts",
+              "name": "Agentic AI Concepts: Tool Usage, MCP, Orchestration & Memory"
+            }
+          ],
+          "selection_rules": [
+            "Account for prompt and generation token counts when projecting inference costs and model context window constraints.",
+            "Use Model Context Protocol (MCP) or tool-calling frameworks to connect generative agents safely to external databases and APIs.",
+            "Recognize that pre-training foundation models from scratch is rarely justified; adapt existing models via prompting, RAG, or fine-tuning."
+          ],
+          "common_confusions": [
+            "Confusing tokens with raw words or character counts (1 token \u2248 0.75 words in English).",
+            "Assuming foundation models store facts as relational databases rather than probabilistic associative weights.",
+            "Confusing single-turn conversational prompting with multi-agent tool-augmented workflows."
+          ]
+        },
+        {
+          "id": "2.2",
+          "name": "Understand the capabilities and limitations of GenAI for solving business problems.",
+          "topics": [
+            {
+              "id": "gen-ai-advantages",
+              "name": "GenAI Strengths: Content Synthesis, Conversational Agility & Code Generation"
+            },
+            {
+              "id": "gen-ai-limitations",
+              "name": "GenAI Risks: Hallucinations, Nondeterminism & Interpretability"
+            },
+            {
+              "id": "model-selection-factors",
+              "name": "Selection Factors: Latency, Modality, Model Complexity & Cost"
+            },
+            {
+              "id": "gen-ai-business-metrics",
+              "name": "Business Alignment Metrics: ROI, Task Completion Rate & Efficiency"
+            }
+          ],
+          "selection_rules": [
+            "Implement grounding techniques (RAG, guardrails, retrieval verification) when factual veracity is critical to mitigate hallucination.",
+            "Set temperature close to 0 for deterministic, analytical outputs; use higher temperature for creative brainstorming.",
+            "Balance model parameter scale against latency and cost budgets based on task difficulty."
+          ],
+          "common_confusions": [
+            "Treating generative model outputs as deterministic facts without verification.",
+            "Assuming larger models are always superior regardless of response latency and token costs.",
+            "Ignoring nondeterminism in automated workflows that require reproducible outputs."
+          ]
+        },
+        {
+          "id": "2.3",
+          "name": "Describe AWS infrastructure and technologies for building GenAI applications.",
+          "topics": [
+            {
+              "id": "aws-gen-ai-services",
+              "name": "Amazon Bedrock, SageMaker AI & SageMaker JumpStart Ecosystem"
+            },
+            {
+              "id": "aws-ai-accelerators",
+              "name": "AWS Specialized Hardware: Trainium, Inferentia & GPU Instances"
+            },
+            {
+              "id": "managed-vs-self-hosted-genai",
+              "name": "Managed Bedrock vs Self-Hosted SageMaker Trade-offs"
+            },
+            {
+              "id": "bedrock-agentcore",
+              "name": "Amazon Bedrock Agents, Knowledge Bases & AgentCore Framework"
+            }
+          ],
+          "selection_rules": [
+            "Choose Amazon Bedrock for serverless, unified API access to leading foundation models without managing GPU infrastructure.",
+            "Choose Amazon SageMaker when complete control over container environments, distributed training, and custom model weights is required.",
+            "Use AWS Inferentia for cost-effective, high-throughput deep learning inference; use AWS Trainium for cost-optimized training."
+          ],
+          "common_confusions": [
+            "Managing EC2 GPU clusters when serverless Bedrock models satisfy the application requirements.",
+            "Confusing SageMaker JumpStart pre-built models with fully managed Amazon Bedrock API consumption.",
+            "Overlooking AWS custom silicon (Inferentia/Trainium) in favor of standard GPUs for cost optimization."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "foundation-models",
+      "name": "Applications of Foundation Models",
+      "weight": 28,
+      "official_reference": "https://docs.aws.amazon.com/aws-certification/latest/ai-practitioner-01/ai-practitioner-01-domain3.html",
+      "tasks": [
+        {
+          "id": "3.1",
+          "name": "Describe design considerations for applications that use foundation models (FMs).",
+          "topics": [
+            {
+              "id": "fm-selection-criteria",
+              "name": "Criteria: Cost, Modality, Latency, Context Window & Prompt Caching"
+            },
+            {
+              "id": "inference-parameters",
+              "name": "Inference Controls: Temperature, Top-P, Top-K & Stop Sequences"
+            },
+            {
+              "id": "rag-architecture",
+              "name": "Retrieval Augmented Generation (RAG) & Bedrock Knowledge Bases"
+            },
+            {
+              "id": "vector-storage-aws",
+              "name": "Vector Databases: OpenSearch Serverless, Aurora pgvector, Neptune"
+            },
+            {
+              "id": "customization-hierarchy",
+              "name": "Customization Spectrum: Prompting vs RAG vs Fine-Tuning vs Pre-training"
+            }
+          ],
+          "selection_rules": [
+            "Adopt RAG when external knowledge changes frequently or domain documents must remain private without retraining model weights.",
+            "Reserve fine-tuning for teaching specialized terminology, style, or task formats; use RAG for factual recall.",
+            "Store and query vector embeddings in Amazon OpenSearch Service or Aurora PostgreSQL (pgvector) for semantic retrieval."
+          ],
+          "common_confusions": [
+            "Attempting to update model knowledge bases by fine-tuning instead of using RAG.",
+            "Confusing temperature (randomness) with top-p (nucleus sampling cumulative probability).",
+            "Believing embeddings contain human-readable text rather than high-dimensional mathematical representations."
+          ]
+        },
+        {
+          "id": "3.2",
+          "name": "Choose effective prompt engineering techniques.",
+          "topics": [
+            {
+              "id": "prompt-techniques",
+              "name": "Prompting Techniques: Zero-Shot, Few-Shot, Chain-of-Thought"
+            },
+            {
+              "id": "prompt-components",
+              "name": "System Prompts, Context, Instructions, Negative Prompts"
+            },
+            {
+              "id": "prompt-security",
+              "name": "Prompt Vulnerabilities: Injection, Hijacking, Jailbreaking & Leaks"
+            },
+            {
+              "id": "bedrock-prompt-management",
+              "name": "Amazon Bedrock Prompt Management & Versioning"
+            }
+          ],
+          "selection_rules": [
+            "Use Few-Shot prompting to demonstrate desired output format and constraints before attempting complex fine-tuning.",
+            "Apply Chain-of-Thought prompting for multi-step logical reasoning and mathematical calculations.",
+            "Implement prompt versioning and parameter testing using Amazon Bedrock Prompt Management."
+          ],
+          "common_confusions": [
+            "Confusing zero-shot prompting with few-shot prompting.",
+            "Assuming prompt engineering eliminates the need for output validation guardrails.",
+            "Failing to protect system prompts against user prompt injection."
+          ]
+        },
+        {
+          "id": "3.3",
+          "name": "Describe the training and fine-tuning process for FMs.",
+          "topics": [
+            {
+              "id": "training-methods",
+              "name": "Pre-training, Instruction Tuning, Domain Adaptation & Distillation"
+            },
+            {
+              "id": "data-preparation-tuning",
+              "name": "Data Preparation: Curation, Labeling, Tokenization & Quality"
+            },
+            {
+              "id": "rlhf-and-feedback",
+              "name": "Reinforcement Learning from Human Feedback (RLHF) & Direct Preference"
+            }
+          ],
+          "selection_rules": [
+            "Curate clean, balanced, representative prompt-response pairs when preparing instruction-tuning datasets.",
+            "Apply model distillation to transfer reasoning capabilities from a large teacher model to a lightweight student model for lower latency.",
+            "Ensure training data adheres to strict privacy and licensing boundaries before initiating fine-tuning."
+          ],
+          "common_confusions": [
+            "Thinking fine-tuning requires millions of documents like pre-training; effective instruction tuning can use hundreds or thousands of high-quality examples.",
+            "Confusing model distillation (compressing model size) with quantization.",
+            "Overfitting fine-tuned models on narrow datasets, causing catastrophic forgetting of general reasoning."
+          ]
+        },
+        {
+          "id": "3.4",
+          "name": "Describe methods to evaluate FM performance.",
+          "topics": [
+            {
+              "id": "evaluation-approaches",
+              "name": "Human-in-the-Loop Evaluation vs Automated Benchmarks"
+            },
+            {
+              "id": "evaluation-metrics-nlp",
+              "name": "NLP Metrics: ROUGE, BLEU, BERTScore & LLM-as-a-Judge"
+            },
+            {
+              "id": "bedrock-model-evaluation",
+              "name": "Amazon Bedrock Model Evaluation Jobs & Custom Metrics"
+            },
+            {
+              "id": "app-performance-metrics",
+              "name": "Application Metrics: RAG Precision/Recall, Task Completion & Latency"
+            }
+          ],
+          "selection_rules": [
+            "Use automated metrics (ROUGE for summarization, BLEU for translation) for rapid continuous benchmarking, supplemented by human review for nuance.",
+            "Utilize Amazon Bedrock Model Evaluation to systematically compare model outputs across multiple foundation models with standardized prompt datasets.",
+            "Track task completion rate and cost per interaction to measure business value alongside technical metrics."
+          ],
+          "common_confusions": [
+            "Relying strictly on BLEU/ROUGE for creative or conversational quality evaluation.",
+            "Evaluating model accuracy in isolation without measuring end-to-end RAG retrieval recall and precision.",
+            "Confusing benchmark performance (e.g. MMLU) with real-world enterprise workflow efficacy."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "responsible-ai",
+      "name": "Guidelines for Responsible AI",
+      "weight": 14,
+      "official_reference": "https://docs.aws.amazon.com/aws-certification/latest/ai-practitioner-01/ai-practitioner-01-domain4.html",
+      "tasks": [
+        {
+          "id": "4.1",
+          "name": "Explain the development of AI systems that are responsible.",
+          "topics": [
+            {
+              "id": "responsible-ai-pillars",
+              "name": "Pillars: Fairness, Inclusivity, Robustness, Safety & Veracity"
+            },
+            {
+              "id": "bedrock-guardrails-responsible",
+              "name": "Amazon Bedrock Guardrails for Content Moderation & PII Redaction"
+            },
+            {
+              "id": "ai-legal-ethical-risks",
+              "name": "Legal Risks: Copyright, IP Infringement, Bias & Trust Degradation"
+            },
+            {
+              "id": "bias-detection-mitigation",
+              "name": "Dataset Bias, Demographic Parity & Representation Balance"
+            }
+          ],
+          "selection_rules": [
+            "Deploy Amazon Bedrock Guardrails to systematically block toxic content, deny forbidden topics, and redact PII across model inputs and outputs.",
+            "Audit training datasets for historical demographic bias before training predictive or classification models.",
+            "Implement human oversight and escalation paths for high-stakes decisions (loans, hiring, healthcare)."
+          ],
+          "common_confusions": [
+            "Believing foundation models automatically respect copyright or ethical guidelines without configured guardrails.",
+            "Treating bias mitigation as a one-time check rather than continuous evaluation across demographic slices.",
+            "Assuming guardrails degrade model intelligence rather than enforcing safety boundaries."
+          ]
+        },
+        {
+          "id": "4.2",
+          "name": "Recognize the importance of transparent and explainable models.",
+          "topics": [
+            {
+              "id": "transparency-vs-blackbox",
+              "name": "Transparent/Interpretable Models vs Black-Box Neural Networks"
+            },
+            {
+              "id": "model-documentation-tools",
+              "name": "Amazon SageMaker Model Cards & Model Governance"
+            },
+            {
+              "id": "interpretability-tradeoffs",
+              "name": "Trade-offs: Accuracy vs Interpretability in Regulated Environments"
+            },
+            {
+              "id": "human-centered-explainability",
+              "name": "Human-Centered Design: Explanations, Attribution & Feedback"
+            }
+          ],
+          "selection_rules": [
+            "Use Amazon SageMaker Model Cards to document intended use, training parameters, evaluation results, and risk profiles for compliance auditability.",
+            "Select inherently interpretable models (decision trees, linear models) when regulatory compliance mandates transparent decision explanation.",
+            "Provide users with clear attribution and source citations in generative responses to foster user trust and verification."
+          ],
+          "common_confusions": [
+            "Assuming complex deep neural networks offer the same post-hoc explainability as shallow models.",
+            "Neglecting model governance documentation until after production deployment.",
+            "Confusing feature importance with causal explanation."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "security-compliance-governance",
+      "name": "Security, Compliance, and Governance for AI Solutions",
+      "weight": 14,
+      "official_reference": "https://docs.aws.amazon.com/aws-certification/latest/ai-practitioner-01/ai-practitioner-01-domain5.html",
+      "tasks": [
+        {
+          "id": "5.1",
+          "name": "Explain methods to secure AI systems.",
+          "topics": [
+            {
+              "id": "iam-and-ai-access",
+              "name": "IAM Policies, Role-Based Access & Least Privilege for Models"
+            },
+            {
+              "id": "ai-data-protection",
+              "name": "Data Encryption at Rest (KMS) & In Transit (TLS) for AI"
+            },
+            {
+              "id": "network-isolation-ai",
+              "name": "VPC Endpoints & AWS PrivateLink for Amazon Bedrock"
+            },
+            {
+              "id": "ai-threats-vulnerabilities",
+              "name": "Threat Vectors: Prompt Injection, Model Inversion & Data Poisoning"
+            },
+            {
+              "id": "grounding-hallucination-defense",
+              "name": "Grounding Techniques & Data Lineage for Security"
+            }
+          ],
+          "selection_rules": [
+            "Keep model traffic private within the VPC using AWS PrivateLink VPC endpoints, avoiding public internet traversal.",
+            "Encrypt training datasets, model artifacts, and vector indices with customer-managed AWS KMS keys.",
+            "Apply input sanitization and prompt injection filters before passing user prompts to foundation models."
+          ],
+          "common_confusions": [
+            "Assuming foundation model providers train public models on your private Amazon Bedrock API prompts and completions (AWS does NOT use customer data to train foundation models).",
+            "Relying on perimeter firewalls while leaving IAM permissions overly permissive.",
+            "Confusing application data encryption with vector database index security."
+          ]
+        },
+        {
+          "id": "5.2",
+          "name": "Recognize governance and compliance regulations for AI systems.",
+          "topics": [
+            {
+              "id": "aws-compliance-tools-ai",
+              "name": "AWS Artifact, AWS CloudTrail & AWS Config for AI Auditing"
+            },
+            {
+              "id": "ai-data-governance",
+              "name": "Data Retention, Data Residency & Model Lifecycle Policies"
+            },
+            {
+              "id": "generative-ai-scoping-matrix",
+              "name": "Generative AI Security Scoping Matrix & Risk Assessment"
+            },
+            {
+              "id": "ai-regulatory-frameworks",
+              "name": "AI Governance Frameworks, EU AI Act & Industry Compliance"
+            }
+          ],
+          "selection_rules": [
+            "Use AWS CloudTrail to log and monitor all API calls made to Amazon Bedrock and SageMaker for security auditing.",
+            "Consult AWS Artifact to obtain compliance reports and attestations for AI workloads in regulated industries (HIPAA, SOC, ISO).",
+            "Apply the Generative AI Security Scoping Matrix to classify workloads based on model customization depth and data sensitivity."
+          ],
+          "common_confusions": [
+            "Assuming third-party model providers through Bedrock have access to your AWS account credentials.",
+            "Failing to retain CloudTrail logs required for regulatory forensics and security audits.",
+            "Treating consumer-grade AI tools and enterprise-grade AWS AI services as having identical data privacy guarantees."
+          ]
+        }
+      ]
+    }
+  ]
+}

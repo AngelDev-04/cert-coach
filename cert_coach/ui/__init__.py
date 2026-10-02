@@ -14,7 +14,6 @@ from cert_coach.ui.prompts import (
     prompt_database_location,
     prompt_exam_selection,
     prompt_harness_selection,
-    prompt_workspace_path,
 )
 
 __all__ = [
@@ -29,6 +28,5 @@ __all__ = [
     "prompt_database_location",
     "prompt_exam_selection",
     "prompt_harness_selection",
-    "prompt_workspace_path",
     "render_static_welcome",
 ]

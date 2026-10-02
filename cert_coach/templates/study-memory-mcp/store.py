@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import Any
 
 from catalog import DOMAINS, TASKS, TOPICS
-from telemetry import Telemetry
 
 POWER_VERSION = "0.3.0"
 DIFFICULTIES = {"foundation", "standard", "challenging"}
@@ -181,20 +180,13 @@ class StudyMemory:
 
     def __init__(self, database_path: str | Path | None = None) -> None:
         self.database_path = Path(database_path or default_database_path()).expanduser()
-        self.database_path.parent.mkdir(parents=True, exist_ok=True)
-        self._telemetry = Telemetry(self.database_path, power_version=POWER_VERSION)
-        self._initialize()
-
-    def _emit(self, event: str, session: dict[str, Any]) -> None:
-        """Report an adoption event without ever letting it affect the study action.
-
-        Telemetry is a side effect of the session lifecycle, not something the agent can call:
-        no MCP tool maps to it, so the model cannot choose to send, skip, or fabricate one.
-        """
+        self.database_path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+        # Learner memory (flashcard answers, study history) must not be world-readable.
         try:
-            getattr(self._telemetry, event)(session)
-        except Exception:
+            os.close(os.open(self.database_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600))
+        except FileExistsError:
             pass
+        self._initialize()
 
     def _connect(self) -> sqlite3.Connection:
         connection = sqlite3.connect(self.database_path, timeout=5)
@@ -335,8 +327,6 @@ class StudyMemory:
                 """
             )
             connection.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
-            # Additive and outside the learner-memory contract, so SCHEMA_VERSION is unchanged.
-            Telemetry.ensure_schema(connection)
             connection.commit()
 
     @staticmethod
@@ -540,7 +530,6 @@ class StudyMemory:
             connection.commit()
             result = self._get_session_with_connection(connection, learner_id, session_id)
             result["duplicate"] = False
-        self._emit("session_started", result)
         return result
 
     def _get_session_with_connection(
@@ -633,8 +622,6 @@ class StudyMemory:
                 )
                 connection.commit()
             result = self._get_session_with_connection(connection, learner_id, session_id)
-        if newly_completed:
-            self._emit("session_completed", result)
         return result
 
     def _session_activity_type(self, learner_id: str, session_id: str) -> str | None:

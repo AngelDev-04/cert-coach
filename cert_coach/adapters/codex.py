@@ -7,9 +7,27 @@ import shutil
 from pathlib import Path
 
 from cert_coach.adapters.base import BaseHarnessAdapter
+from cert_coach.adapters.pacing import TURN_TAKING_CONTRACT
 from cert_coach.core.config import TEMPLATES_DIR
 from cert_coach.core.models import HarnessType
 from cert_coach.exams.registry import ExamRegistry
+
+
+def _toml_string(value: str) -> str:
+    """Render ``value`` as a TOML basic string, escaping quotes, backslashes and control chars."""
+    out = []
+    for ch in value:
+        if ch == "\\":
+            out.append("\\\\")
+        elif ch == '"':
+            out.append('\\"')
+        elif ch == "\t":
+            out.append(ch)
+        elif ord(ch) < 0x20 or ord(ch) == 0x7F:
+            out.append(f"\\u{ord(ch):04X}")
+        else:
+            out.append(ch)
+    return '"' + "".join(out) + '"'
 
 
 class CodexAdapter(BaseHarnessAdapter):
@@ -44,6 +62,9 @@ class CodexAdapter(BaseHarnessAdapter):
 You are an expert, privacy-first study coach for the **{exam_meta.name} ({exam_meta.code})** certification exam.
 Equipped with 9 specialized study skills and a local persistent learner-memory MCP server (`study-memory`), you guide the learner through diagnostics, adaptive practice quizzes, weighted mock exams, architectural scenario drills, and spaced repetition flashcards.
 
+---
+
+{TURN_TAKING_CONTRACT}
 ---
 
 ## Strict Question Presentation Contract
@@ -90,12 +111,12 @@ Codex interacts with the local stdio MCP server configured in `.codex/config.tom
 ---
 
 ## Common Prompt Triggers
-- "Start an initial diagnostic for learner miguel"
-- "Quiz learner miguel on DynamoDB vs Aurora with 3 questions"
-- "Start a 20-question mini mock exam for learner miguel"
+- "Start an initial diagnostic for learner-01"
+- "Quiz learner-01 on DynamoDB vs Aurora with 3 questions"
+- "Start a 20-question mini mock exam for learner-01"
 - "Give me an architecture scenario drill on resilient multi-tier VPC design"
-- "Review my due flashcards for learner miguel"
-- "What should learner miguel study today?"
+- "Review my due flashcards for learner-01"
+- "What should learner-01 study today?"
 """
         agents_md_path.write_text(agents_content, encoding="utf-8")
         created.append(agents_md_path)
@@ -109,6 +130,7 @@ This workspace is configured for the **{exam_meta.name} ({exam_meta.code})** Stu
 Please refer to `AGENTS.md` for full instructions, capabilities, and contracts.
 
 ## Key Rules
+0. **Turn-Taking Contract**: ONE question per message. Present it, then STOP and wait for the learner's reply. Never batch, preview, or answer upcoming questions.
 1. **Question Presentation Contract**: Head items with `Question X of Y` only. Do not reveal domain, task, or topic before the user answers. Balance distractors and vary key positions.
 2. **Privacy Contract**: Never persist question stems or conversation transcripts. Store only structured telemetry via `study-memory` MCP tools.
 3. **Skills**: Modular skills are available in `.agents/skills/` and `.codex/skills/`.
@@ -127,24 +149,28 @@ Please refer to `AGENTS.md` for full instructions, capabilities, and contracts.
         else:
             server_py = (TEMPLATES_DIR / "study-memory-mcp" / "server.py").resolve()
 
-        escaped_server = str(server_py).replace("\\", "\\\\")
-        escaped_db = str(db_path.resolve()).replace("\\", "\\\\")
-
         mcp_block = (
             "[mcp_servers.study-memory]\n"
             'command = "python3"\n'
-            f'args = ["{escaped_server}"]\n\n'
+            f"args = [{_toml_string(str(server_py))}]\n\n"
             "[mcp_servers.study-memory.env]\n"
-            f'STUDY_MEMORY_DB = "{escaped_db}"\n'
+            f"STUDY_MEMORY_DB = {_toml_string(str(db_path.resolve()))}\n"
         )
 
         if config_toml_path.is_file():
             existing_toml = config_toml_path.read_text(encoding="utf-8")
-            if "[mcp_servers.study-memory]" in existing_toml:
-                pattern = r"\[mcp_servers\.study-memory\][\s\S]*?(?=\n\[|\Z)"
-                new_toml = re.sub(pattern, mcp_block.strip(), existing_toml)
-            else:
-                new_toml = existing_toml.rstrip() + "\n\n" + mcp_block
+            # Drop [mcp_servers.study-memory] and its sub-tables, keep everything else, re-append ours.
+            kept_lines: list[str] = []
+            skipping = False
+            for line in existing_toml.splitlines():
+                header = re.match(r"\s*\[+\s*([^\]]+?)\s*\]+\s*(#.*)?$", line)
+                if header:
+                    name = header.group(1)
+                    skipping = name == "mcp_servers.study-memory" or name.startswith("mcp_servers.study-memory.")
+                if not skipping:
+                    kept_lines.append(line)
+            kept = "\n".join(kept_lines).strip()
+            new_toml = (kept + "\n\n" + mcp_block) if kept else mcp_block
             config_toml_path.write_text(new_toml.strip() + "\n", encoding="utf-8")
         else:
             config_toml_path.write_text(mcp_block, encoding="utf-8")
@@ -182,6 +208,6 @@ Please refer to `AGENTS.md` for full instructions, capabilities, and contracts.
             "OpenAI Codex CLI Setup:\n"
             f"  1. In terminal, navigate to: cd {workspace_root}\n"
             "  2. Launch Codex: codex\n"
-            "  3. Try asking: 'Start an initial diagnostic for learner miguel'\n"
-            "     or run: '$ quiz-learner' or 'What should learner miguel study today?'"
+            "  3. Try asking: 'Start an initial diagnostic for learner-01'\n"
+            "     or run: '$ quiz-learner' or 'What should learner-01 study today?'"
         )

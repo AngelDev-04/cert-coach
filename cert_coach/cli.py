@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shlex
 import shutil
 import sqlite3
 import sys
@@ -15,7 +16,17 @@ from rich.panel import Panel
 from rich.table import Table
 
 from cert_coach.adapters import get_adapter, list_adapters
-from cert_coach.core.config import DEFAULT_SHARED_DB, TEMPLATES_DIR, WorkspaceManager
+from cert_coach.core.config import (
+    CONFIG_FILENAME,
+    DEFAULT_SHARED_DB,
+    TEMPLATES_DIR,
+    WORKSPACE_DIRNAME,
+    WorkspaceManager,
+    create_private_file,
+    default_workspace_root,
+    find_existing_workspace,
+    write_workspace_pointer,
+)
 from cert_coach.core.models import ExamType, HarnessType, WorkspaceConfig
 from cert_coach.exams.registry import ExamRegistry
 from cert_coach.mcp.launcher import run_mcp_server
@@ -37,8 +48,110 @@ from cert_coach.ui.prompts import (
     prompt_database_location,
     prompt_exam_selection,
     prompt_harness_selection,
-    prompt_workspace_path,
 )
+
+
+# Command used to launch each harness from inside the workspace folder.
+HARNESS_LAUNCH_COMMANDS: dict[str, tuple[str, str]] = {
+    "claude": ("Claude Code", "claude"),
+    "kiro": ("Kiro CLI", "kiro-cli"),
+    "agy": ("Antigravity (agy)", "agy"),
+    "codex": ("OpenAI Codex CLI", "codex"),
+}
+
+
+def resolve_workspace_root(chosen: Path, default_root: Path | None = None) -> Path:
+    """Map a user-chosen folder to the actual workspace root.
+
+    - An existing workspace (has .cert-coach.json) is reused as-is.
+    - The default root (~/cert-coach or $CERT_COACH_HOME) is used as-is.
+    - A folder already named 'cert-coach' (that is not a source checkout) is used as-is.
+    - Otherwise a 'cert-coach/' subfolder is created inside the chosen folder.
+    """
+    chosen = chosen.expanduser().resolve()
+    default_root = (default_root or default_workspace_root()).expanduser().resolve()
+    if (chosen / CONFIG_FILENAME).is_file():
+        return chosen
+    if chosen == default_root and not (chosen / "cert_coach" / "cli.py").is_file():
+        return chosen
+    if chosen.name == WORKSPACE_DIRNAME and not (chosen / "cert_coach" / "cli.py").is_file():
+        return chosen
+    return chosen / WORKSPACE_DIRNAME
+
+
+def _is_package_source(path: Path) -> bool:
+    """Return True if path is (inside) the installed/checked-out cert_coach package."""
+    package_dir = TEMPLATES_DIR.parent.resolve()
+    resolved = path.resolve()
+    if resolved == package_dir or package_dir in resolved.parents:
+        return True
+    return resolved.name == "cert_coach" or (
+        (resolved / "adapters").is_dir() and (resolved / "cli.py").is_file()
+    )
+
+
+def _locate_workspace(explicit_dir: str | None) -> tuple[Path, WorkspaceManager]:
+    """Find an existing workspace: --dir, else cwd, else the registered/default workspace."""
+    if explicit_dir:
+        raw_root = Path(explicit_dir).expanduser().resolve()
+        return raw_root, WorkspaceManager(raw_root)
+    raw_root = Path.cwd().resolve()
+    manager = WorkspaceManager(raw_root)
+    if not manager.is_initialized():
+        existing = find_existing_workspace()
+        if existing is not None:
+            return existing, WorkspaceManager(existing)
+    return raw_root, manager
+
+
+def _print_init_summary(
+    workspace_root: Path,
+    exam_label: str,
+    harnesses: list[str],
+    db_path: Path,
+    instructions: list[str],
+) -> None:
+    """Print the post-init summary with copy-pasteable launch commands."""
+    quoted_root = shlex.quote(str(workspace_root))
+
+    details = [
+        f"[bold white]Target Exam:[/bold white] [bold green]{exam_label}[/bold green]",
+        f"[bold white]Harnesses Configured:[/bold white] [bold blue]{', '.join(harnesses)}[/bold blue]",
+        f"[bold white]Shared Database:[/bold white] [dim]{db_path}[/dim]",
+    ]
+    console.print()
+    console.print(
+        Panel(
+            "\n".join(details),
+            title="[bold green]✓ Study Coach Successfully Initialized[/bold green]",
+            border_style="green",
+        )
+    )
+
+    if instructions:
+        console.print()
+        console.print("[bold cyan]Agent details:[/bold cyan]")
+        for instr in instructions:
+            console.print(instr, markup=False, highlight=False, soft_wrap=True)
+            console.print()
+
+    # Printed outside any panel with soft_wrap so paths/commands are never
+    # broken by borders or line wrapping and can be copy-pasted verbatim.
+    console.print()
+    console.print("[bold green]Your study workspace is ready at:[/bold green]")
+    console.print(f"  [bold]{workspace_root}[/bold]", soft_wrap=True, highlight=False)
+    console.print()
+    console.print("[bold yellow]Start your agent FROM that folder so it picks up the coach instructions and MCP config:[/bold yellow]")
+    for harness in harnesses:
+        label, command = HARNESS_LAUNCH_COMMANDS.get(harness, (harness, harness))
+        console.print(f"  [dim]# {label}[/dim]")
+        console.print(f"  cd {quoted_root} && {command}", markup=False, soft_wrap=True, highlight=False)
+    console.print()
+    console.print(
+        "[dim]Launching the agent from any other folder will not load the study coach. "
+        "Re-run 'cert-coach init' any time; it reuses this workspace.[/dim]"
+    )
+    console.print()
 
 
 def cmd_init(args: argparse.Namespace) -> int:
@@ -49,33 +162,68 @@ def cmd_init(args: argparse.Namespace) -> int:
     else:
         render_static_welcome()
 
-    # 1. Resolve workspace root
+    # 1. Resolve the workspace root. Default is a fixed, cwd-independent location
+    #    (~/cert-coach or $CERT_COACH_HOME) so workspaces never get scattered.
+    #    Idempotent: there is one workspace per user. If it already exists, init
+    #    updates it in place instead of scaffolding a second copy elsewhere.
+    default_root = default_workspace_root()
+    existing_root = find_existing_workspace()
     if args.dir:
-        workspace_root = Path(args.dir).resolve()
-    elif not args.non_interactive and is_interactive():
-        workspace_root = prompt_workspace_path(".")
+        workspace_root = resolve_workspace_root(Path(args.dir).expanduser().resolve(), default_root)
+    elif existing_root is not None:
+        workspace_root = existing_root
     else:
-        workspace_root = Path.cwd().resolve()
+        workspace_root = resolve_workspace_root(default_root, default_root)
 
-    workspace_root.mkdir(parents=True, exist_ok=True)
+    if existing_root is not None and workspace_root != existing_root:
+        if not args.relocate:
+            print_error(
+                f"A study workspace already exists at {existing_root}.\n"
+                f"  Run 'cert-coach init' without --dir to update it in place, or add\n"
+                f"  --relocate to move it to {workspace_root}."
+            )
+            return 1
+        if workspace_root.exists() and any(workspace_root.iterdir()):
+            print_error(f"Cannot relocate: {workspace_root} already exists and is not empty.")
+            return 1
+        if _is_package_source(workspace_root):
+            print_error(f"Cannot relocate into the cert_coach source package ({workspace_root}).")
+            return 1
+        relocate_from: Path | None = existing_root
+    else:
+        relocate_from = None
 
     # Prevent inadvertent poisoning of package source directory
-    if workspace_root.name == "cert_coach" or ((workspace_root / "adapters").is_dir() and (workspace_root / "cli.py").is_file()):
+    if _is_package_source(workspace_root):
         print_error(
             f"Cannot initialize inside the cert_coach source package ({workspace_root}).\n"
-            f"  Please initialize in the repository root or specify another target folder."
+            f"  Please choose another target folder (default: {default_root})."
         )
         return 1
 
-    manager = WorkspaceManager(workspace_root)
+    # Nothing is created, moved or written on disk until every prompt is answered,
+    # so cancelling the wizard (Ctrl+C) leaves no trace.
+    source_manager = WorkspaceManager(relocate_from or workspace_root)
+    previous = source_manager.load_config() if source_manager.is_initialized() else None
+    if relocate_from is not None:
+        print_info(f"Will move study workspace {relocate_from} -> {workspace_root}")
+    elif previous is not None:
+        print_info(f"Updating existing study workspace in place: {workspace_root}")
+    else:
+        print_info(f"Study workspace will be created at {workspace_root} (use --dir to choose another folder)")
 
     # 2. Resolve harnesses
     if args.harness:
         harness_names = [h.strip().lower() for h in args.harness.split(",") if h.strip()]
     elif not args.non_interactive and is_interactive():
-        harness_names = prompt_harness_selection(["kiro"])
+        harness_names = prompt_harness_selection(list(previous.harnesses) if previous and previous.harnesses else ["kiro"])
+    elif previous is not None and previous.harnesses:
+        harness_names = list(previous.harnesses)
     else:
         harness_names = ["kiro"]
+    # Re-runs add harnesses; they never drop ones configured earlier.
+    if previous is not None:
+        harness_names = list(dict.fromkeys([*previous.harnesses, *harness_names]))
 
     # Validate harnesses
     selected_harnesses: list[HarnessType] = []
@@ -90,7 +238,9 @@ def cmd_init(args: argparse.Namespace) -> int:
     if args.exam:
         exam_key = args.exam.strip().lower()
     elif not args.non_interactive and is_interactive():
-        exam_key = prompt_exam_selection("saa-c03")
+        exam_key = prompt_exam_selection(previous.exam if previous else "saa-c03")
+    elif previous is not None:
+        exam_key = previous.exam
     else:
         exam_key = "saa-c03"
 
@@ -102,7 +252,9 @@ def cmd_init(args: argparse.Namespace) -> int:
 
     # 4. Resolve DB path
     if args.db:
-        db_path = Path(args.db).resolve()
+        db_path = Path(args.db).expanduser().resolve()
+    elif previous is not None and previous.database_path:
+        db_path = Path(previous.database_path).expanduser().resolve()
     elif not args.non_interactive and is_interactive():
         chosen_db = prompt_database_location(default_shared=True)
         db_path = Path(chosen_db).expanduser()
@@ -111,7 +263,16 @@ def cmd_init(args: argparse.Namespace) -> int:
     else:
         db_path = DEFAULT_SHARED_DB.resolve()
 
-    db_path.parent.mkdir(parents=True, exist_ok=True)
+    # All answers collected: now touch the disk.
+    if relocate_from is not None:
+        workspace_root.parent.mkdir(parents=True, exist_ok=True)
+        if workspace_root.exists():
+            workspace_root.rmdir()
+        shutil.move(str(relocate_from), str(workspace_root))
+        print_info(f"Moved study workspace {relocate_from} -> {workspace_root}")
+    workspace_root.mkdir(parents=True, exist_ok=True)
+    manager = WorkspaceManager(workspace_root)
+    db_path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
 
     instructions: list[str] = []
 
@@ -132,8 +293,11 @@ def cmd_init(args: argparse.Namespace) -> int:
     def task_mcp() -> None:
         mcp_src = TEMPLATES_DIR / "study-memory-mcp"
         mcp_dest = workspace_root / "study-memory-mcp"
-        if mcp_src.is_dir() and not mcp_dest.is_dir():
-            shutil.copytree(mcp_src, mcp_dest)
+        # Always refresh so upgrades ship the new server; learner data lives in the DB, not here.
+        if mcp_src.is_dir():
+            shutil.copytree(
+                mcp_src, mcp_dest, dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__", "*.pyc")
+            )
 
     def task_harnesses() -> None:
         for h_type in selected_harnesses:
@@ -147,9 +311,13 @@ def cmd_init(args: argparse.Namespace) -> int:
             harnesses=[h.value for h in selected_harnesses],
             database_path=str(db_path),
         )
+        if previous is not None and previous.created_at:
+            config.created_at = previous.created_at
         manager.save_config(config)
+        write_workspace_pointer(workspace_root)
 
     def task_db() -> None:
+        create_private_file(db_path)
         conn = sqlite3.connect(db_path, timeout=3)
         conn.close()
 
@@ -165,38 +333,25 @@ def cmd_init(args: argparse.Namespace) -> int:
     is_anim = is_interactive() and not args.non_interactive and not args.no_animation
     run_scaffolding_with_mascot(scaffold_tasks, interactive=is_anim)
 
-    # Summary Panel
-    console.print()
-    summary_lines = [
-        f"[bold white]Target Exam:[/bold white] [bold green]{exam_meta.name} ({exam_meta.code})[/bold green]",
-        f"[bold white]Harnesses Configured:[/bold white] [bold blue]{', '.join(h.value for h in selected_harnesses)}[/bold blue]",
-        f"[bold white]Shared Database:[/bold white] [dim]{db_path}[/dim]",
-        f"[bold white]Workspace Directory:[/bold white] [dim]{workspace_root}[/dim]",
-        "",
-        "[bold cyan]Next Steps:[/bold cyan]",
-    ]
-    for instr in instructions:
-        summary_lines.append(instr)
-        summary_lines.append("")
-
-    panel = Panel(
-        "\n".join(summary_lines).strip(),
-        title="[bold green]✓ Study Coach Successfully Initialized[/bold green]",
-        border_style="green",
+    _print_init_summary(
+        workspace_root=workspace_root,
+        exam_label=f"{exam_meta.name} ({exam_meta.code})",
+        harnesses=[h.value for h in selected_harnesses],
+        db_path=db_path,
+        instructions=instructions,
     )
-    console.print(panel)
     return 0
 
 
 def cmd_add_harness(args: argparse.Namespace) -> int:
     """Add a new agent harness to an existing workspace."""
-    workspace_root = Path(args.dir).resolve() if args.dir else Path.cwd().resolve()
-    manager = WorkspaceManager(workspace_root)
+    raw_root, manager = _locate_workspace(args.dir)
 
     if not manager.is_initialized():
-        print_error(f"Directory '{workspace_root}' is not a cert-coach workspace. Run 'cert-coach init' first.")
+        print_error(f"Directory '{raw_root}' is not a cert-coach workspace. Run 'cert-coach init' first.")
         return 1
 
+    workspace_root = manager.root
     config = manager.load_config()
     db_path = config.resolve_db_path(workspace_root)
 
@@ -212,19 +367,23 @@ def cmd_add_harness(args: argparse.Namespace) -> int:
 
     print_step(f"Added harness: [bold blue]{adapter.display_name}[/bold blue]", f"{len(files)} files created")
     console.print()
+    _, launch_cmd = HARNESS_LAUNCH_COMMANDS.get(h_type.value, (h_type.value, h_type.value))
+    console.print("[bold yellow]Start the agent from the workspace folder:[/bold yellow]")
+    console.print(f"  cd {shlex.quote(str(workspace_root))} && {launch_cmd}", markup=False, soft_wrap=True, highlight=False)
+    console.print()
     console.print(adapter.get_instructions(workspace_root))
     return 0
 
 
 def cmd_status(args: argparse.Namespace) -> int:
     """Show workspace status, active harnesses, and learner database statistics."""
-    workspace_root = Path(args.dir).resolve() if args.dir else Path.cwd().resolve()
-    manager = WorkspaceManager(workspace_root)
+    raw_root, manager = _locate_workspace(args.dir)
 
     if not manager.is_initialized():
-        print_error(f"'{workspace_root}' is not an initialized cert-coach workspace.")
+        print_error(f"'{raw_root}' is not an initialized cert-coach workspace.")
         return 1
 
+    workspace_root = manager.root
     config = manager.load_config()
     exam_meta = ExamRegistry.get_metadata(config.exam)
     db_path = config.resolve_db_path(workspace_root)
@@ -292,16 +451,17 @@ def cmd_doctor(args: argparse.Namespace) -> int:
         all_passed = False
 
     # 2. Workspace check
-    workspace_root = Path(args.dir).resolve() if args.dir else Path.cwd().resolve()
-    manager = WorkspaceManager(workspace_root)
+    raw_root, manager = _locate_workspace(args.dir)
     if manager.is_initialized():
+        workspace_root = manager.root
         config = manager.load_config()
         print_step("Workspace Config", f"Valid .cert-coach.json (Exam: {config.exam})")
 
         # 3. Check DB access
         db_path = config.resolve_db_path(workspace_root)
         try:
-            db_path.parent.mkdir(parents=True, exist_ok=True)
+            db_path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+            create_private_file(db_path)
             conn = sqlite3.connect(db_path, timeout=2)
             conn.close()
             print_step("SQLite DB Access", f"Writable at {db_path}")
@@ -321,10 +481,11 @@ def cmd_doctor(args: argparse.Namespace) -> int:
                 print_error(f"Harness check failed for {h_str}: {e}")
                 all_passed = False
     else:
-        print_info(f"Directory '{workspace_root}' is not initialized. Run 'cert-coach init' to configure.")
+        print_info(f"Directory '{raw_root}' is not initialized. Run 'cert-coach init' to configure.")
 
     # 5. Check MCP server executable
-    workspace_server_py = workspace_root / "study-memory-mcp" / "server.py"
+    check_root = manager.root if manager.is_initialized() else raw_root
+    workspace_server_py = check_root / "study-memory-mcp" / "server.py"
     server_py = workspace_server_py if workspace_server_py.is_file() else (TEMPLATES_DIR / "study-memory-mcp" / "server.py")
     if server_py.is_file():
         print_step("MCP Server Script", f"Found at {server_py}")
@@ -344,9 +505,10 @@ def cmd_mcp(args: argparse.Namespace) -> int:
     """Launch the stdio MCP server directly."""
     db_path = args.db
     if not db_path:
-        workspace_root = Path(args.dir).resolve() if args.dir else Path.cwd().resolve()
-        manager = WorkspaceManager(workspace_root)
+        raw_root = Path(args.dir).resolve() if args.dir else Path.cwd().resolve()
+        manager = WorkspaceManager(raw_root)
         if manager.is_initialized():
+            workspace_root = manager.root
             config = manager.load_config()
             db_path = str(config.resolve_db_path(workspace_root))
         else:
@@ -374,6 +536,9 @@ def build_parser() -> argparse.ArgumentParser:
     init_parser.add_argument("--db", help="Path to SQLite database")
     init_parser.add_argument("--non-interactive", "-y", action="store_true", help="Skip interactive prompts")
     init_parser.add_argument("--no-animation", action="store_true", help="Disable character boot animation")
+    init_parser.add_argument(
+        "--relocate", action="store_true", help="Move the existing workspace to --dir instead of refusing"
+    )
 
     # add-harness
     add_parser = subparsers.add_parser("add-harness", help="Add an agent harness to the current workspace")

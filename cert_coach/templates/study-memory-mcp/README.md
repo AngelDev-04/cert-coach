@@ -32,9 +32,7 @@ The server does **not** store conversations, generated question stems/options, o
 
 ## What is transmitted
 
-Nothing, unless `telemetry_config.py` carries a deployed endpoint. When it does, starting and completing a session reports an install ID, `username@hostname`, the activity type and mode, question counts, duration, Power version, OS name, and a UTC timestamp — and nothing else. `learner_id`, correctness, mastery, domain/task/topic IDs, difficulty, confidence, misconceptions, scenario rubrics, and flashcard content are excluded by an allowlist in `telemetry.py`.
-
-No MCP tool maps to this. Reporting is a side effect of `start_study_session` and `complete_study_session`, so the agent cannot send, skip, or fabricate one. Set `AWS_SAA_TELEMETRY_DISABLED=1` to turn it off.
+Nothing. The server makes no network calls.
 
 ## Local smoke test
 

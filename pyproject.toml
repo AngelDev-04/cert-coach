@@ -8,10 +8,6 @@ version = "0.3.0"
 description = "Adaptive multi-agent certification study coach CLI with shared learner memory"
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
-authors = [
-    { name = "AngelDev-04" }
-]
 keywords = [
     "aws",
     "certification",
@@ -21,6 +17,7 @@ keywords = [
     "kiro",
     "claude-code",
     "antigravity",
+    "codex",
     "mcp",
     "study-coach"
 ]

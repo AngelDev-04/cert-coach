@@ -7,15 +7,19 @@ import shutil
 from pathlib import Path
 
 from cert_coach.adapters.base import BaseHarnessAdapter
+from cert_coach.adapters.pacing import TURN_TAKING_CONTRACT
 from cert_coach.core.config import TEMPLATES_DIR
 from cert_coach.core.models import HarnessType
 from cert_coach.exams.registry import ExamRegistry
+
+AGY_PLUGIN_NAME = "cert-coach-study-memory"
 
 QUESTION_CONTRACT_CONTENT = """# {exam_code} Question Presentation Contract
 
 Applies to every flow that asks objective questions (quiz-learner, diagnostic-assessment, mock-exam).
 A question must not be answerable from anything except its stem and options.
 
+0. **ONE question per message**: Present one question, then STOP and wait for the learner's reply. Never batch or preview upcoming questions (see Turn-Taking Contract below).
 1. **Coverage-free headings**: Head each item with position only: `Question X of Y`. Never name domain, task, topic, or service under test before the learner answers.
 2. **Vary key position**: Choose option order so the correct letter moves across A, B, C, D (max 40% in one slot).
 3. **Balanced options**: Distractors must match the key in length, grammatical structure, and specificity.
@@ -73,6 +77,9 @@ You guide the learner through personalized diagnostics, targeted quizzes, archit
 
 ---
 
+{TURN_TAKING_CONTRACT}
+---
+
 ## Strict Question Presentation Contract
 Applies to EVERY flow asking objective questions (`quiz-learner`, `diagnostic-assessment`, `mock-exam`):
 1. **Coverage-free headings**: Head each question ONLY with its position: `Question X of Y`. NEVER name the domain, task, topic, difficulty, or service under test before the learner answers.
@@ -110,7 +117,7 @@ Applies to EVERY flow asking objective questions (`quiz-learner`, `diagnostic-as
         gemini_rules.mkdir(parents=True, exist_ok=True)
         agents_rules.mkdir(parents=True, exist_ok=True)
 
-        q_contract_text = QUESTION_CONTRACT_CONTENT.format(exam_code=exam_meta.code)
+        q_contract_text = QUESTION_CONTRACT_CONTENT.format(exam_code=exam_meta.code) + "\n" + TURN_TAKING_CONTRACT
 
         # question-presentation-contract.md (for backward-compatibility with tests)
         rule_q_legacy = gemini_rules / "question-presentation-contract.md"
@@ -218,6 +225,22 @@ Applies to EVERY flow asking objective questions (`quiz-learner`, `diagnostic-as
         mcp_json_path.write_text(json.dumps(mcp_json_data, indent=2) + "\n", encoding="utf-8")
         created.append(mcp_json_path)
 
+        # 5c. Workspace plugin: the only place Agy loads a project-scoped MCP server from.
+        #     Agy reads mcp_config.json from ~/.gemini/config/ or from plugins/<name>/ inside a
+        #     customization root (the workspace's .agents/), never from the workspace root.
+        plugin_dir = workspace_root / ".agents" / "plugins" / AGY_PLUGIN_NAME
+        plugin_dir.mkdir(parents=True, exist_ok=True)
+        plugin_json_path = plugin_dir / "plugin.json"
+        plugin_json_path.write_text(
+            json.dumps({"name": AGY_PLUGIN_NAME}, indent=2) + "\n", encoding="utf-8"
+        )
+        created.append(plugin_json_path)
+        plugin_mcp_path = plugin_dir / "mcp_config.json"
+        plugin_mcp_path.write_text(
+            json.dumps({"mcpServers": {"study-memory": server_entry}}, indent=2) + "\n", encoding="utf-8"
+        )
+        created.append(plugin_mcp_path)
+
         return created
 
     def is_configured(self, workspace_root: Path) -> bool:
@@ -240,5 +263,5 @@ Applies to EVERY flow asking objective questions (`quiz-learner`, `diagnostic-as
             "     - /progress (or /review-progress): Knowledge mastery report\n"
             "     - /teach (or /teach-topic): Concept deep-dive & trade-offs\n"
             "     - /scenario (or /scenario-drill): Architecture trade-off design\n"
-            "  4. Try asking: 'Start an adaptive study plan for learner miguel'"
+            "  4. Try asking: 'Start an adaptive study plan for learner-01'"
         )

@@ -1,0 +1,566 @@
+{
+  "schema_version": "1.0",
+  "exam_code": "CLF-C02",
+  "verified_on": "2026-09-09",
+  "official_exam_guide": "https://docs.aws.amazon.com/aws-certification/latest/cloud-practitioner-02/cloud-practitioner-02.html",
+  "passing_score": 700,
+  "scale_max": 1000,
+  "domains": [
+    {
+      "id": "cloud-concepts",
+      "name": "Cloud Concepts",
+      "weight": 24,
+      "official_reference": "https://docs.aws.amazon.com/aws-certification/latest/cloud-practitioner-02/cloud-practitioner-02-domain1.html",
+      "tasks": [
+        {
+          "id": "1.1",
+          "name": "Define the benefits of the AWS Cloud.",
+          "topics": [
+            {
+              "id": "aws-cloud-value",
+              "name": "AWS Cloud Value Proposition & Global Reach"
+            },
+            {
+              "id": "high-availability-agility",
+              "name": "High Availability, Elasticity & Agility"
+            }
+          ],
+          "selection_rules": [
+            "Distinguish elasticity (dynamic automatic scaling to match load) from scalability (ability to accommodate growth).",
+            "Recognize agility as rapid innovation and instant provisioning compared to lengthy on-premises procurement.",
+            "Leverage AWS global infrastructure to deploy applications globally in minutes with minimal latency."
+          ],
+          "common_confusions": [
+            "Confusing elasticity with high availability or fault tolerance.",
+            "Assuming agility refers to software sprint methodology rather than rapid resource provisioning.",
+            "Confusing global reach with multi-region active-active disaster recovery."
+          ]
+        },
+        {
+          "id": "1.2",
+          "name": "Identify design principles of the AWS Cloud.",
+          "topics": [
+            {
+              "id": "well-architected-framework",
+              "name": "AWS Well-Architected Framework: 6 Pillars"
+            },
+            {
+              "id": "pillar-design-principles",
+              "name": "Architectural Design Principles across Pillars"
+            }
+          ],
+          "selection_rules": [
+            "Recall the six pillars: Operational Excellence, Security, Reliability, Performance Efficiency, Cost Optimization, Sustainability.",
+            "Apply foundational principles: stop guessing capacity needs, test systems at production scale, automate architectural experimentation.",
+            "Implement evolutionary architectures with loosely coupled components and serverless event-driven patterns."
+          ],
+          "common_confusions": [
+            "Confusing Reliability (recovering from disruptions) with Performance Efficiency (using resources efficiently).",
+            "Forgetting Sustainability as the official sixth pillar of the Well-Architected Framework.",
+            "Treating Well-Architected design principles as strict audit requirements rather than architectural guidance."
+          ]
+        },
+        {
+          "id": "1.3",
+          "name": "Understand the benefits of and strategies for migration to the AWS Cloud.",
+          "topics": [
+            {
+              "id": "cloud-adoption-framework",
+              "name": "AWS Cloud Adoption Framework (AWS CAF)"
+            },
+            {
+              "id": "migration-strategies-7rs",
+              "name": "Cloud Migration Strategies (7 Rs) & Migration Tools"
+            }
+          ],
+          "selection_rules": [
+            "Apply the 6 AWS CAF perspectives: Business, People, Governance, Platform, Security, Operations.",
+            "Distinguish the 7 Rs of migration: Rehost (lift-and-shift), Replatform (lift-tinker-and-shift), Repurchase (drop-and-shop to SaaS), Refactor/Re-architect, Retain, Retire, Relocate.",
+            "Choose Rehost for urgent datacentre evacuation; choose Refactor to take full advantage of cloud-native serverless capabilities."
+          ],
+          "common_confusions": [
+            "Confusing Rehosting (direct VM migration without code changes) with Replatforming (small optimizations like moving to managed RDS).",
+            "Confusing the Business perspective with the Governance perspective in AWS CAF.",
+            "Assuming migration always requires complete re-architecting on day one."
+          ]
+        },
+        {
+          "id": "1.4",
+          "name": "Understand concepts of cloud economics.",
+          "topics": [
+            {
+              "id": "fixed-vs-variable-costs",
+              "name": "Capital Expenditures (CapEx) vs Operational Expenditures (OpEx)"
+            },
+            {
+              "id": "cloud-cost-savings",
+              "name": "Economies of Scale, Rightsizing & Licensing (BYOL)"
+            }
+          ],
+          "selection_rules": [
+            "Trade upfront capital expense (CapEx datacenter hardware) for variable operational expense (OpEx pay-as-you-go).",
+            "Benefit from massive economies of scale passed along as frequent price reductions by AWS.",
+            "Apply continuous rightsizing to eliminate idle over-provisioned capacity before purchasing commitments."
+          ],
+          "common_confusions": [
+            "Assuming cloud total cost of ownership (TCO) accounts only for direct server costs without facility and power savings.",
+            "Purchasing reservations before rightsizing workloads.",
+            "Confusing BYOL (Bring Your Own License) model with license-included compute instances."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "security-compliance",
+      "name": "Security and Compliance",
+      "weight": 30,
+      "official_reference": "https://docs.aws.amazon.com/aws-certification/latest/cloud-practitioner-02/cloud-practitioner-02-domain2.html",
+      "tasks": [
+        {
+          "id": "2.1",
+          "name": "Understand the AWS shared responsibility model.",
+          "topics": [
+            {
+              "id": "shared-responsibility-core",
+              "name": "AWS Shared Responsibility Model: Customer vs AWS Duties"
+            },
+            {
+              "id": "service-responsibility-shifts",
+              "name": "Responsibility Shifts: IaaS (EC2) vs PaaS (RDS) vs Serverless (Lambda)"
+            }
+          ],
+          "selection_rules": [
+            "AWS is responsible for security OF the cloud (hardware, physical datacenters, facilities, virtualization, network infrastructure).",
+            "Customer is responsible for security IN the cloud (customer data, IAM, OS patching on EC2, network firewall configuration, encryption).",
+            "As services move from IaaS (EC2) to managed PaaS (RDS) to serverless (Lambda), AWS assumes more patching and OS maintenance responsibility."
+          ],
+          "common_confusions": [
+            "Assuming AWS patches the guest OS of Amazon EC2 instances.",
+            "Assuming the customer manages physical security or hardware decommissioning.",
+            "Believing managed database services (RDS) eliminate customer responsibility for data access controls."
+          ]
+        },
+        {
+          "id": "2.2",
+          "name": "Understand AWS Cloud security, governance, and compliance concepts.",
+          "topics": [
+            {
+              "id": "compliance-and-artifact",
+              "name": "AWS Artifact & Compliance Programs"
+            },
+            {
+              "id": "cloud-security-services",
+              "name": "Security Monitoring: GuardDuty, Inspector, Security Hub & Shield"
+            },
+            {
+              "id": "encryption-and-auditing",
+              "name": "Encryption (At Rest & In Transit) & Auditing (CloudTrail, Config)"
+            }
+          ],
+          "selection_rules": [
+            "Use AWS Artifact to access on-demand compliance reports (SOC, PCI-DSS, ISO) and agreements (BAA).",
+            "Select Amazon GuardDuty for intelligent threat detection; select Amazon Inspector for automated vulnerability scanning.",
+            "Use AWS CloudTrail for recording governance API activity and AWS Config for evaluating configuration compliance over time."
+          ],
+          "common_confusions": [
+            "Confusing CloudTrail (who did what and when) with CloudWatch (performance metrics and logging).",
+            "Confusing Inspector (vulnerability scans on EC2/ECR) with GuardDuty (threat detection analyzing DNS, VPC, and CloudTrail logs).",
+            "Assuming encryption at rest in S3 also encrypts data during network transmission without TLS."
+          ]
+        },
+        {
+          "id": "2.3",
+          "name": "Identify AWS access management capabilities.",
+          "topics": [
+            {
+              "id": "iam-fundamentals",
+              "name": "IAM Users, Groups, Roles, Policies & Least Privilege"
+            },
+            {
+              "id": "root-user-protection",
+              "name": "Root User Safeguards, MFA & Credential Hygiene"
+            },
+            {
+              "id": "identity-center-federation",
+              "name": "AWS IAM Identity Center & Identity Federation"
+            }
+          ],
+          "selection_rules": [
+            "Enforce least privilege: grant only the minimum necessary permissions required to perform a task.",
+            "Protect the AWS root user with multi-factor authentication (MFA), delete root access keys, and never use root for daily tasks.",
+            "Prefer IAM roles over long-term access keys for granting applications and AWS services temporary credentials.",
+            "Use AWS IAM Identity Center for centralized workforce single sign-on (SSO) and multi-account access."
+          ],
+          "common_confusions": [
+            "Using root account credentials for daily administrative activities.",
+            "Embedding long-lived access keys in code instead of assigning IAM roles to EC2/Lambda.",
+            "Confusing IAM groups (containers of users for permission attachment) with IAM roles (assumable entities)."
+          ]
+        },
+        {
+          "id": "2.4",
+          "name": "Identify components and resources for security.",
+          "topics": [
+            {
+              "id": "perimeter-workload-security",
+              "name": "AWS WAF, Shield, Firewall Manager & Network Security"
+            },
+            {
+              "id": "security-documentation-advisory",
+              "name": "AWS Trusted Advisor, Security Center & AWS Marketplace Security"
+            }
+          ],
+          "selection_rules": [
+            "Deploy AWS WAF to protect web applications against common HTTP exploits (SQL injection, cross-site scripting).",
+            "Rely on AWS Shield Standard for automatic DDoS protection; upgrade to Shield Advanced for dedicated response team and financial protection.",
+            "Use AWS Trusted Advisor security checks to identify open security groups and missing MFA on the root account."
+          ],
+          "common_confusions": [
+            "Confusing AWS WAF (Layer 7 web application firewall) with AWS Shield (Layer 3/4 DDoS protection).",
+            "Assuming AWS Shield Standard requires manual activation (it is enabled automatically at no extra charge).",
+            "Confusing Security Groups (stateful instance firewalls) with Network ACLs (stateless subnet firewalls)."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cloud-technology",
+      "name": "Cloud Technology and Services",
+      "weight": 34,
+      "official_reference": "https://docs.aws.amazon.com/aws-certification/latest/cloud-practitioner-02/cloud-practitioner-02-domain3.html",
+      "tasks": [
+        {
+          "id": "3.1",
+          "name": "Define methods of deploying and operating in the AWS Cloud.",
+          "topics": [
+            {
+              "id": "deployment-methods",
+              "name": "Management Console, CLI, SDKs & Infrastructure as Code (CloudFormation)"
+            },
+            {
+              "id": "cloud-deployment-models",
+              "name": "Cloud, Hybrid & On-Premises Deployment Models"
+            }
+          ],
+          "selection_rules": [
+            "Use AWS CloudFormation or AWS CDK for repeatable, automated Infrastructure as Code (IaC).",
+            "Choose programmatic access (AWS CLI / SDK) for automation and scripted deployments; use Console for ad-hoc visual management.",
+            "Distinguish deployment models: All-in Cloud (fully cloud-native), Hybrid (connecting on-premises datacenter with AWS), On-Premises/Private Cloud."
+          ],
+          "common_confusions": [
+            "Confusing AWS CLI (command line execution) with AWS SDK (programming language libraries).",
+            "Using manual console click-paths for repeatable production deployments instead of IaC.",
+            "Assuming hybrid deployment means running two identical cloud providers simultaneously."
+          ]
+        },
+        {
+          "id": "3.2",
+          "name": "Define the AWS global infrastructure.",
+          "topics": [
+            {
+              "id": "regions-and-azs",
+              "name": "AWS Regions, Availability Zones & High Availability"
+            },
+            {
+              "id": "edge-infrastructure",
+              "name": "Edge Locations, Points of Presence & CloudFront/Global Accelerator"
+            },
+            {
+              "id": "multi-region-patterns",
+              "name": "Multi-Region Deployments for Disaster Recovery & Latency"
+            }
+          ],
+          "selection_rules": [
+            "An AWS Region consists of three or more physically isolated, redundant Availability Zones (AZs).",
+            "An Availability Zone comprises one or more discrete datacenters with redundant power, networking, and connectivity.",
+            "Deploy workloads across multiple AZs within a Region for high availability and fault tolerance.",
+            "Use Edge Locations with Amazon CloudFront (CDN) to cache content closer to end users and reduce delivery latency."
+          ],
+          "common_confusions": [
+            "Thinking an Availability Zone is a single data center building.",
+            "Confusing an Edge Location (content caching and DDoS mitigation) with a full AWS Region.",
+            "Assuming resources in different Regions communicate over public unencrypted links by default."
+          ]
+        },
+        {
+          "id": "3.3",
+          "name": "Identify AWS compute services.",
+          "topics": [
+            {
+              "id": "ec2-instance-types",
+              "name": "Amazon EC2 Instance Types & Use Cases"
+            },
+            {
+              "id": "containers-orchestration",
+              "name": "Container Options: Amazon ECS, Amazon EKS & AWS Fargate"
+            },
+            {
+              "id": "serverless-compute",
+              "name": "Serverless Compute: AWS Lambda & Event-Driven Execution"
+            },
+            {
+              "id": "elasticity-load-balancing",
+              "name": "Auto Scaling & Elastic Load Balancing"
+            }
+          ],
+          "selection_rules": [
+            "Select Amazon EC2 when complete OS-level control and custom software installations are required.",
+            "Choose AWS Lambda for serverless, event-driven execution with millisecond scaling and zero infrastructure management.",
+            "Use AWS Fargate to run containers serverlessly without managing EC2 host instances.",
+            "Pair Elastic Load Balancing (ELB) with Amazon EC2 Auto Scaling to achieve elasticity and high availability under variable load."
+          ],
+          "common_confusions": [
+            "Paying for idle server capacity with EC2 instead of choosing serverless Lambda for sporadic execution.",
+            "Confusing Amazon ECS (AWS native container orchestrator) with Amazon EKS (managed Kubernetes).",
+            "Confusing Elastic Load Balancing (traffic distribution) with Auto Scaling (instance capacity adjustment)."
+          ]
+        },
+        {
+          "id": "3.4",
+          "name": "Identify AWS database services.",
+          "topics": [
+            {
+              "id": "relational-databases",
+              "name": "Relational Databases: Amazon RDS & Amazon Aurora"
+            },
+            {
+              "id": "nosql-databases",
+              "name": "NoSQL Databases: Amazon DynamoDB"
+            },
+            {
+              "id": "in-memory-databases",
+              "name": "In-Memory Caching: Amazon ElastiCache & MemoryDB"
+            },
+            {
+              "id": "database-migration",
+              "name": "Database Migration: AWS DMS & AWS SCT"
+            }
+          ],
+          "selection_rules": [
+            "Choose Amazon RDS for traditional relational OLTP workloads (MySQL, PostgreSQL, Oracle, SQL Server).",
+            "Choose Amazon Aurora for high-performance cloud-native MySQL/PostgreSQL with automatic multi-AZ 6-way replication.",
+            "Select Amazon DynamoDB for fully managed serverless key-value/document NoSQL with single-digit millisecond latency at any scale.",
+            "Use Amazon ElastiCache (Redis/Memcached) for in-memory caching to reduce database read pressure.",
+            "Use AWS Database Migration Service (AWS DMS) with minimal downtime during database transitions."
+          ],
+          "common_confusions": [
+            "Choosing Amazon Redshift (OLAP data warehouse) for high-frequency transactional OLTP queries.",
+            "Hosting relational databases manually on EC2 without considering managed RDS automated backups and failover.",
+            "Confusing AWS DMS (data replication engine) with AWS SCT (schema conversion tool)."
+          ]
+        },
+        {
+          "id": "3.5",
+          "name": "Identify AWS network services.",
+          "topics": [
+            {
+              "id": "vpc-foundations",
+              "name": "Amazon VPC, Subnets, Route Tables & Gateways (IGW, NAT)"
+            },
+            {
+              "id": "network-security-controls",
+              "name": "Security Groups vs Stateless Network ACLs"
+            },
+            {
+              "id": "dns-and-hybrid-connectivity",
+              "name": "Amazon Route 53, AWS VPN & AWS Direct Connect"
+            }
+          ],
+          "selection_rules": [
+            "Provision isolated virtual networks with Amazon VPC, using public subnets for internet-facing assets and private subnets for backends.",
+            "Attach an Internet Gateway (IGW) for public routing and a NAT Gateway to allow private subnet instances outbound internet access.",
+            "Use Amazon Route 53 for scalable DNS resolution, domain registration, and health-check routing.",
+            "Choose AWS Direct Connect for a dedicated private fiber link; use AWS Site-to-Site VPN for quick encrypted IPsec tunnels over the internet."
+          ],
+          "common_confusions": [
+            "Placing databases in public subnets instead of private subnets behind security groups.",
+            "Confusing stateful Security Groups (return traffic automatically allowed) with stateless Network ACLs (both directions must be explicitly permitted).",
+            "Assuming AWS Direct Connect automatically encrypts traffic without an overlay IPsec VPN."
+          ]
+        },
+        {
+          "id": "3.6",
+          "name": "Identify AWS storage services.",
+          "topics": [
+            {
+              "id": "s3-storage-classes",
+              "name": "Amazon S3 Storage Classes & Lifecycle Policies"
+            },
+            {
+              "id": "block-storage-ebs",
+              "name": "Amazon EBS Volumes & EC2 Instance Store"
+            },
+            {
+              "id": "file-storage-efs-fsx",
+              "name": "File Systems: Amazon EFS & Amazon FSx"
+            },
+            {
+              "id": "hybrid-storage-backup",
+              "name": "AWS Storage Gateway & AWS Backup"
+            }
+          ],
+          "selection_rules": [
+            "Choose Amazon S3 for durable object storage; use S3 Lifecycle policies to transition data to Glacier for low-cost archiving.",
+            "Use Amazon EBS for persistent block storage attached to a single EC2 instance.",
+            "Use EC2 Instance Store only for ephemeral temporary scratch data that does not require persistence across instance stop/termination.",
+            "Choose Amazon EFS for managed POSIX network file systems shareable concurrently across hundreds of Linux instances.",
+            "Use AWS Backup to centralize and automate data protection across AWS storage and database services."
+          ],
+          "common_confusions": [
+            "Assuming EC2 instance store data persists when an instance is stopped (it is ephemeral and lost).",
+            "Confusing Amazon EBS (block storage attached to one instance) with Amazon EFS (network file storage shared by many).",
+            "Storing relational database data directly in S3 objects."
+          ]
+        },
+        {
+          "id": "3.7",
+          "name": "Identify AWS artificial intelligence and machine learning (AI/ML) services and analytics services.",
+          "topics": [
+            {
+              "id": "managed-aiml-services",
+              "name": "AI/ML Services: Amazon SageMaker AI, Bedrock, Lex, Polly, Rekognition"
+            },
+            {
+              "id": "analytics-services",
+              "name": "Analytics: Amazon Athena, EMR, AWS Glue, Kinesis & QuickSight"
+            }
+          ],
+          "selection_rules": [
+            "Use Amazon SageMaker AI to build, train, and deploy custom ML models at scale.",
+            "Use Amazon Bedrock to consume foundation models via serverless APIs for generative AI applications.",
+            "Use Amazon Athena to run interactive SQL queries directly against data files stored in Amazon S3 without loading servers.",
+            "Use AWS Glue for serverless ETL (extract, transform, load) and data cataloging; use Amazon QuickSight for business intelligence dashboards."
+          ],
+          "common_confusions": [
+            "Deploying EMR clusters when simple ad-hoc SQL queries in S3 can be handled serverlessly by Athena.",
+            "Confusing Amazon Kinesis (streaming real-time data) with AWS Glue (batch ETL data preparation).",
+            "Confusing SageMaker (custom ML pipeline platform) with turn-key managed AI services like Rekognition."
+          ]
+        },
+        {
+          "id": "3.8",
+          "name": "Identify services from other in-scope AWS service categories.",
+          "topics": [
+            {
+              "id": "app-integration-messaging",
+              "name": "Messaging: Amazon SQS, Amazon SNS, Amazon EventBridge & Step Functions"
+            },
+            {
+              "id": "developer-tools-cicd",
+              "name": "Developer Tools: AWS CodePipeline, CodeBuild & AWS X-Ray"
+            },
+            {
+              "id": "end-user-computing-iot",
+              "name": "End-User Computing (WorkSpaces, AppStream) & AWS IoT Core"
+            }
+          ],
+          "selection_rules": [
+            "Use Amazon SQS (message queues) to decouple asynchronous producers and consumers with durable buffering.",
+            "Use Amazon SNS (publish/subscribe) to fan out single messages to multiple subscribers (email, SMS, Lambda, SQS).",
+            "Use Amazon EventBridge to route events from AWS services and SaaS partners to targets using rules.",
+            "Use AWS Step Functions to orchestrate complex multi-step distributed workflows and state machines.",
+            "Use Amazon WorkSpaces for secure, managed virtual cloud desktops accessible on any device."
+          ],
+          "common_confusions": [
+            "Confusing SQS (one-to-one queue polling) with SNS (one-to-many topic fanout).",
+            "Confusing AWS CodeBuild (compiling source and running tests) with AWS CodeDeploy (automating deployment to targets).",
+            "Using custom polling scripts instead of native EventBridge event routing."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "billing-pricing",
+      "name": "Billing, Pricing, and Support",
+      "weight": 12,
+      "official_reference": "https://docs.aws.amazon.com/aws-certification/latest/cloud-practitioner-02/cloud-practitioner-02-domain4.html",
+      "tasks": [
+        {
+          "id": "4.1",
+          "name": "Compare AWS pricing models.",
+          "topics": [
+            {
+              "id": "compute-pricing-models",
+              "name": "Purchasing Options: On-Demand, Reserved Instances, Spot & Savings Plans"
+            },
+            {
+              "id": "data-transfer-storage-costs",
+              "name": "Data Transfer Pricing & Storage Tier Economics"
+            }
+          ],
+          "selection_rules": [
+            "Choose On-Demand Instances for short-term, unpredictable workloads without upfront commitment.",
+            "Choose Reserved Instances or Compute Savings Plans (1 or 3-year commitment) for predictable, steady-state workloads for up to 72% discounts.",
+            "Choose Spot Instances (up to 90% discount) for fault-tolerant, flexible workloads that can withstand interruptions.",
+            "Inbound data transfer to AWS is free; outbound data transfer across Regions or to the internet incurs egress costs."
+          ],
+          "common_confusions": [
+            "Using Spot Instances for mission-critical, interruption-sensitive production workloads.",
+            "Assuming data transfer between EC2 instances in different AZs is always free.",
+            "Confusing EC2 Instance Savings Plans (commitment to a specific family in a region) with Compute Savings Plans (flexible across families, regions, and Fargate/Lambda)."
+          ]
+        },
+        {
+          "id": "4.2",
+          "name": "Understand resources for billing, budget, and cost management.",
+          "topics": [
+            {
+              "id": "billing-tools-budgets",
+              "name": "AWS Budgets, Cost Explorer & Cost and Usage Report (CUR)"
+            },
+            {
+              "id": "pricing-calculator",
+              "name": "AWS Pricing Calculator & Cost Estimation"
+            },
+            {
+              "id": "consolidated-billing-tags",
+              "name": "AWS Organizations Consolidated Billing & Cost Allocation Tags"
+            }
+          ],
+          "selection_rules": [
+            "Use AWS Pricing Calculator to estimate monthly architecture costs prior to deploying workloads.",
+            "Use AWS Cost Explorer to visualize, understand, and forecast historical and future cloud spending patterns.",
+            "Configure AWS Budgets to set custom cost or usage thresholds and receive automated alerts via SNS or email before exceeding budgets.",
+            "Use AWS Organizations consolidated billing to combine usage across member accounts and qualify for volume pricing discounts.",
+            "Apply cost allocation tags to categorize resources by department, environment, or project for billing attribution."
+          ],
+          "common_confusions": [
+            "Confusing Cost Explorer (historical visual analysis & forecasting) with AWS Budgets (proactive threshold alerts).",
+            "Confusing AWS Pricing Calculator (pre-deployment estimates) with AWS Cost and Usage Report (post-consumption granular data).",
+            "Expecting untagged resources to be automatically attributed to specific cost centers."
+          ]
+        },
+        {
+          "id": "4.3",
+          "name": "Identify AWS technical resources and AWS Support options.",
+          "topics": [
+            {
+              "id": "support-plans",
+              "name": "AWS Support Tiers: Basic, Developer, Business, Enterprise On-Ramp, Enterprise"
+            },
+            {
+              "id": "technical-guidance-health",
+              "name": "AWS Trusted Advisor, AWS Health Dashboard & Documentation"
+            },
+            {
+              "id": "partner-ecosystem",
+              "name": "AWS Partner Network (APN), Marketplace & Professional Services"
+            }
+          ],
+          "selection_rules": [
+            "Basic Support: 24x7 access to customer service, documentation, and 7 core Trusted Advisor checks at no charge.",
+            "Developer Support: Business hours email access to Cloud Support Associates, 1 primary contact, <12 hr general response.",
+            "Business Support: 24x7 phone, chat, and email access to Cloud Support Engineers, unlimited contacts, <1 hr production down response, full Trusted Advisor checks.",
+            "Enterprise Support: <15 min business-critical response, designated Technical Account Manager (TAM), Concierge team, Infrastructure Event Management (IEM).",
+            "Use AWS Health Dashboard for alerts on service degradations and planned maintenance impacting specific account resources."
+          ],
+          "common_confusions": [
+            "Expecting phone or chat support with the Developer Support plan (it is email-only during business hours).",
+            "Expecting a dedicated TAM (Technical Account Manager) on the Business plan (requires Enterprise or Enterprise On-Ramp Support).",
+            "Confusing AWS Service Health Dashboard (public status of all AWS services) with AWS Personal Health Dashboard (account-specific impacts)."
+          ]
+        }
+      ]
+    }
+  ]
+}

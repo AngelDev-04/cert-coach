@@ -4,7 +4,7 @@
   "version": "0.3.0",
   "description": "A private adaptive AWS SAA-C03 coach with diagnostics, original quizzes, architecture scenarios, weighted mock exams, spaced repetition, and evidence-calibrated study plans.",
   "author": {
-    "name": "AWS SAA Study Coach contributors"
+    "name": "Internal Development Team"
   },
   "keywords": [
     "AWS certification",
@@ -19,5 +19,5 @@
     "AWS architecture scenario",
     "study progress"
   ],
-  "license": "MIT"
+  "license": "Proprietary"
 }

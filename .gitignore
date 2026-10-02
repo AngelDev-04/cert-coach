@@ -25,6 +25,7 @@ MANIFEST
 *.db
 .cert-coach/
 .cert-coach.json
+cert-coach/
 
 .env
 .venv
@@ -39,3 +40,5 @@ venv.bak/
 .vscode/
 *.swp
 *.swo
+.ruff_cache/
+.pytest_cache/

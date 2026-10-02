@@ -7,17 +7,61 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-CATALOG_PATH = Path(__file__).resolve().parents[1] / "docs" / "saa-c03-concept-catalog.json"
+import os
+
+SUPPORTED_EXAM_CODES = {"SAA-C03", "CLF-C02", "AIF-C01"}
+
+
+def resolve_catalog_path() -> Path:
+    """Find the concept catalog for the workspace, falling back to SAA-C03."""
+    env_path = os.environ.get("STUDY_CATALOG_PATH")
+    if env_path:
+        p = Path(env_path).expanduser().resolve()
+        if p.is_file():
+            return p
+
+    workspace_root = Path(__file__).resolve().parents[1]
+    docs_dir = workspace_root / "docs"
+
+    config_file = workspace_root / ".cert-coach.json"
+    if config_file.is_file():
+        try:
+            with config_file.open(encoding="utf-8") as f:
+                data = json.load(f)
+            exam = data.get("exam", "").lower()
+            if exam:
+                candidate = docs_dir / f"{exam}-concept-catalog.json"
+                if candidate.is_file():
+                    return candidate
+        except Exception:
+            pass
+
+    if docs_dir.is_dir():
+        catalogs = list(docs_dir.glob("*-concept-catalog.json"))
+        if catalogs:
+            for c in catalogs:
+                if "saa-c03" in c.name.lower():
+                    return c
+            return catalogs[0]
+
+    return docs_dir / "saa-c03-concept-catalog.json"
+
+
+CATALOG_PATH = resolve_catalog_path()
 
 
 @lru_cache(maxsize=1)
 def load_catalog() -> dict[str, Any]:
     """Return the validated catalog shared by persistence and MCP tools."""
-    with CATALOG_PATH.open(encoding="utf-8") as catalog_file:
+    catalog_file_path = resolve_catalog_path() if not CATALOG_PATH.is_file() else CATALOG_PATH
+    with catalog_file_path.open(encoding="utf-8") as catalog_file:
         catalog: dict[str, Any] = json.load(catalog_file)
 
-    if catalog.get("schema_version") != "1.0" or catalog.get("exam_code") != "SAA-C03":
-        raise RuntimeError("Unsupported SAA-C03 concept catalog version")
+    if catalog.get("schema_version") != "1.0":
+        raise RuntimeError("Unsupported concept catalog schema version")
+    exam_code = catalog.get("exam_code")
+    if not exam_code or not isinstance(exam_code, str):
+        raise RuntimeError("Concept catalog must specify a valid exam_code")
 
     domains = catalog.get("domains")
     if not isinstance(domains, list) or not domains:
